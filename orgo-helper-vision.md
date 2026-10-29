@@ -18,7 +18,7 @@ This project covers **everything on orgohelper.com except the practice problem g
 - The home page
 - Sign-in with Google or Apple, accounts and the Account page
 - The Lectures section
-- The phone notice shown to visitors on small screens
+- Phone layouts for the site pages, and the "unavailable on a phone" page shown for desktop-only generators
 - The design system (colors, typography, components) used by every page, including the pages that host generators
 - The common frame that each generator appears in, and the way generators are listed and reached from the site
 - Hosting, domains, deployment and site-wide protections such as rate limiting
@@ -30,7 +30,7 @@ This project covers **everything on orgohelper.com except the practice problem g
 - Each generator's own settings, problem display and feedback
 - Chemistry tooling used by the generators (such as RDKit and OPSIN)
 
-**TODO:** define the interface between the website and a generator: how a generator is added to the menu, what the site provides to it (signed-in user, layout, styles) and what it provides back (for example, scores to show on the Account page).
+**TODO:** define the interface between the website and a generator: how a generator is added to the menu, whether it is phone-friendly or desktop-only, what the site provides to it (signed-in user, layout, styles) and what it provides back (for example, scores to show on the Account page).
 
 ## Goals
 
@@ -41,7 +41,7 @@ This project covers **everything on orgohelper.com except the practice problem g
 
 ## Audience
 
-Undergraduates enrolled in first- or second-semester organic chemistry. They study on laptops, often shortly before a quiz or exam, and typically arrive from a YouTube video or a search such as "organic chemistry IUPAC rules."
+Undergraduates enrolled in first- or second-semester organic chemistry. They mostly study on laptops or tablets, sometimes on phones, often shortly before a quiz or exam, and typically arrive from a YouTube video or a search such as "organic chemistry IUPAC rules."
 
 ## Site structure
 
@@ -49,7 +49,7 @@ The main menu is **Practice Problems** (a dropdown of the generators) · **Lectu
 
 | Generator in the Practice Problems menu | Status |
 | --- | --- |
-| IUPAC naming | First generator, in development as a separate project |
+| IUPAC naming | First generator, in development as a separate project; works on laptops and phones |
 | Synthesis (including retrosynthesis) | Planned |
 | Acid/Base chemistry | Planned |
 
@@ -60,13 +60,13 @@ Generators that aren't available yet appear in the menu marked "Coming soon," so
 ## Core user journey
 
 1. A student searches Google or YouTube for a topic such as IUPAC naming and finds an Orgo Helper video that teaches it and demonstrates the site.
-2. They follow the link in the video description, which goes straight to that topic's generator. On a phone, they see a notice that the site is designed for laptops, with a way to save the link.
+2. They follow the link in the video description, which goes straight to that topic's generator. On a phone, a phone-friendly generator opens normally; a desktop-only generator shows a page saying it is unavailable on a phone and asking them to come back on a laptop or tablet.
 3. They sign in with Google or Apple and return directly to the generator they were trying to reach, not a general dashboard.
 4. The generator takes over from there, inside the site's common frame.
 
 ## Platform and technical decisions
 
-- **Laptop-first:** the site targets laptops. There will be no phone layout; tablets are a possible future enhancement. Phone visitors see a "best on a laptop" notice.
+- **Laptop and tablet first, phones where possible:** the site is designed primarily for laptops and tablets, and as much of it as possible is also made available on phones. Each generator is either phone-friendly or desktop-only: if a generator's design is too complicated to fit comfortably on a phone, it gets no phone version, and phone visitors are told to come back on a laptop or tablet.
 - **Sign-in required:** via Google or Apple, partly to deter scraping. The site backs this up with per-account rate limiting; each generator is responsible for keeping its own answers on the server.
 - **Accounts and hosting:** a GitHub account and an AWS account are set up for the project.
 - **Privacy policy and terms** are needed before launch, since the site stores information from people's Google and Apple accounts.

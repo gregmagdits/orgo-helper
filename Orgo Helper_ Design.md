@@ -32,12 +32,4 @@ The current palette is "Custom - based on White Page, navy header," chosen from 
 | Wrong answer | `#C01C28` |
 | Footer "Helper" | `#8DBDEB` |
 
-## Fixed conventions
-
-- **Molecules are always drawn the same way,** regardless of the site theme: black bonds and red oxygen (`#FF0000`) on a white canvas, for maximum legibility.
-- **The answer box is always white,** with near-black text.
-- **The practice page uses a "summary bar" layout:** the current settings appear as chips in a bar under the header, and an Edit settings button opens a drawer with the full form.
-- **Keyboard-friendly:** Enter submits, Enter again moves to the next problem, and a shortcut skips.
-- **Errors are shown next to the field that caused them,** and correct and incorrect feedback differ by symbol and wording as well as color.
-
 **Next step:** turn the mockups into a design system (design tokens for colors, type sizes and spacing, plus component styles).
