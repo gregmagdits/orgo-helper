@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molecule wallpaper editor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+  :root { --navy:#12203a; --heading:#1d3557; --muted:#45526a; --brand:#1d4e89; --surface:#f5f7fa; --raised:#ffffff; --mist:#aebdd0; --line:#7d8da6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; color: var(--navy); background: var(--surface); }
+  .app { display: flex; height: 100vh; }
+  .stage { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .toolbar button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .toolbar select { width: auto; }
+  .stage svg { flex: 1; min-height: 0; width: 100%; background: var(--raised); border: 1px solid var(--mist); border-radius: 8px; touch-action: none; user-select: none; }
+  #preview { flex: 1; min-height: 0; overflow: auto; background: #dfe5ee; border: 1px solid var(--mist); border-radius: 8px; padding: 12px; }
+  #previewBox { position: relative; margin: 0 auto; }
+  #previewHost { position: absolute; top: 0; left: 0; transform-origin: top left; pointer-events: none; box-shadow: 0 1px 4px rgba(18,32,58,.15); }
+  [hidden] { display: none !important; }
+  .panel { width: 320px; flex: none; overflow-y: auto; padding: 16px; background: var(--raised); border-left: 1px solid var(--mist); display: flex; flex-direction: column; gap: 16px; }
+  h1 { margin: 0; font-size: 18px; color: var(--heading); }
+  h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  p { margin: 0; color: var(--muted); line-height: 1.45; }
+  section { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--mist); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; font-weight: 600; }
+  label.check { flex-direction: row; align-items: center; gap: 6px; font-weight: 400; font-size: 14px; }
+  input[type=number], select, textarea { font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: #fff; color: var(--navy); width: 100%; }
+  textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; height: 110px; resize: vertical; }
+  button { font: inherit; font-weight: 600; height: 34px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line); background: #fff; color: var(--navy); cursor: pointer; }
+  button.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .muted { color: var(--muted); font-size: 12px; }
+  kbd { font: inherit; font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; background: var(--surface); }
+  .status { min-height: 18px; font-size: 12px; color: var(--brand); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage">
+    <div class="toolbar" role="toolbar" aria-label="View">
+      <button id="tabEdit" aria-pressed="true">Edit tile</button>
+      <button id="tabPreview" aria-pressed="false">Preview on mockups</button>
+      <span id="previewCtl" hidden style="display: inline-flex; gap: 8px; align-items: center;">
+        <label class="check" style="font-size: 13px;">Page <select id="pvPage"><option value="home">Home</option><option value="signin">Sign in</option><option value="generator">Generator page</option></select></label>
+        <label class="check" style="font-size: 13px;">Size <select id="pvSize"><option value="laptop">Laptop 1440</option><option value="phone">Phone 375</option></select></label>
+        <label class="check" style="font-size: 13px;"><input id="pvFit" type="checkbox" checked> Fit to window</label>
+      </span>
+    </div>
+    <svg id="stage" viewBox="-240 -240 1440 1440" role="img" aria-label="Wallpaper tile editor"></svg>
+    <div id="preview" hidden><div id="previewBox"><div id="previewHost"></div></div></div>
+  </div>
+  <aside class="panel">
+    <div>
+      <h1>Molecule wallpaper editor</h1>
+      <p>Drag a molecule to move it. Drag the round handle to rotate it. The dashed square is one tile; the faded copies around it show how it repeats.</p>
+      <p class="muted" style="margin-top:6px">Keys (with a molecule selected): arrows move 1px (<kbd>Shift</kbd> = 10), <kbd>[</kbd> <kbd>]</kbd> rotate 5° (<kbd>Shift</kbd> = 15°), <kbd>Delete</kbd> removes.</p>
+    </div>
+
+    <section>
+      <h2>Selected molecule</h2>
+      <label>Type <select id="selType"></select></label>
+      <div class="grid3">
+        <label>X <input id="selX" type="number" step="1"></label>
+        <label>Y <input id="selY" type="number" step="1"></label>
+        <label>Angle ° <input id="selA" type="number" step="1"></label>
+      </div>
+      <div class="row">
+        <button id="btnDup">Duplicate</button>
+        <button id="btnDel">Delete</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Add a molecule</h2>
+      <div class="row">
+        <select id="addType"></select>
+        <button id="btnAdd">Add</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>View</h2>
+      <label class="check"><input id="chkReal" type="checkbox"> Show at real (faint) strength</label>
+      <label class="check"><input id="chkRepeat" type="checkbox" checked> Show the repeat around the tile</label>
+    </section>
+
+    <section>
+      <h2>Export</h2>
+      <label>Line strength in the final wallpaper <input id="expOpacity" type="number" min="0.01" max="1" step="0.005" value="0.075"></label>
+      <p class="muted">When you're happy, copy the layout below and paste it into the chat. Claude will rebuild the wallpaper from it and update the mockups.</p>
+      <label>Layout (paste this into the chat)
+        <textarea id="outJson" readonly></textarea>
+      </label>
+      <div class="row">
+        <button class="primary" id="btnCopyJson">Copy layout</button>
+        <button id="btnLoad">Load pasted layout</button>
+      </div>
+      <label>Wallpaper SVG (optional)
+        <textarea id="outSvg" readonly></textarea>
+      </label>
+      <div class="row"><button id="btnCopySvg">Copy SVG</button></div>
+      <div class="status" id="status" role="status"></div>
+    </section>
+  </aside>
+</div>
+
+<script>
+const TILE = 960, R = 26, NS = "http://www.w3.org/2000/svg";
+const INITIAL = [{"type": "cyclohexene", "x": 157.7, "y": 83.4, "angle": 130.5}, {"type": "isopropylcyclohexane", "x": 404.0, "y": 161.5, "angle": 343.3}, {"type": "isopropylcyclohexane", "x": 627.3, "y": 78.5, "angle": 230.0}, {"type": "isopropylcyclohexane", "x": 809.5, "y": 109.6, "angle": 71.6}, {"type": "methylpentane", "x": 120.6, "y": 394.7, "angle": 67.1}, {"type": "hexene", "x": 320.2, "y": 375.3, "angle": 175.3}, {"type": "benzene", "x": 591.8, "y": 322.9, "angle": 194.8}, {"type": "cyclohexene", "x": 832.4, "y": 405.1, "angle": 161.5}, {"type": "toluene", "x": 132.1, "y": 590.3, "angle": 271.4}, {"type": "hexene", "x": 311.5, "y": 632.7, "angle": 215.1}, {"type": "toluene", "x": 625.4, "y": 643.3, "angle": 214.2}, {"type": "benzene", "x": 878.9, "y": 578.7, "angle": 228.4}, {"type": "methylpentane", "x": 116.7, "y": 802.7, "angle": 158.8}, {"type": "cyclopentane", "x": 340.7, "y": 883.1, "angle": 289.0}, {"type": "cyclopentane", "x": 642.9, "y": 860.1, "angle": 278.0}, {"type": "benzene", "x": 827.5, "y": 821.9, "angle": 160.4}];
+
+// ---------- molecule geometry (local coordinates, centred on 0,0) ----------
+const rad = d => d * Math.PI / 180;
+const hexv = (r = R, rot = 0, n = 6) => Array.from({ length: n }, (_, i) => [r * Math.cos(rad(rot + 90 + 360 / n * i)), r * Math.sin(rad(rot + 90 + 360 / n * i))]);
+const inner = (pts, idxs, k = 0.76) => idxs.map(i => {
+  const a = pts[i].map(v => v * k), b = pts[(i + 1) % pts.length].map(v => v * k);
+  return [[[a[0] + (b[0] - a[0]) * .18, a[1] + (b[1] - a[1]) * .18], [a[0] + (b[0] - a[0]) * .82, a[1] + (b[1] - a[1]) * .82]], false];
+});
+const zig = n => { const p = Array.from({ length: n }, (_, i) => [i * 22.5, i % 2 ? 13 : 0]); const cx = p.reduce((s, q) => s + q[0], 0) / n; return p.map(([x, y]) => [x - cx, y - 6.5]); };
+const dbl = (p, i, side) => { const a = p[i], b = p[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = -dy / L * 5 * side, ny = dx / L * 5 * side;
+  return [[[a[0] + nx + dx * .15, a[1] + ny + dy * .15], [b[0] + nx - dx * .15, b[1] + ny - dy * .15]], false]; };
+const TEMPLATES = {
+  benzene: () => { const p = hexv(); return [[p, true], ...inner(p, [0, 2, 4])]; },
+  toluene: () => { const p = hexv(), v = p[1]; return [[p, true], ...inner(p, [2, 4, 0]), [[v, [v[0] * 1.85, v[1] * 1.85]], false]]; },
+  isopropylcyclohexane: () => {
+    const p = hexv(), v = p[1], L = Math.hypot(v[0], v[1]), u = [v[0] / L, v[1] / L];
+    const c = [v[0] + u[0] * 26, v[1] + u[1] * 26];
+    const turn = d => [u[0] * Math.cos(rad(d)) - u[1] * Math.sin(rad(d)), u[0] * Math.sin(rad(d)) + u[1] * Math.cos(rad(d))];
+    const m1 = turn(60), m2 = turn(-60);
+    return [[p, true], [[v, c], false], [[c, [c[0] + m1[0] * 26, c[1] + m1[1] * 26]], false], [[c, [c[0] + m2[0] * 26, c[1] + m2[1] * 26]], false]];
+  },
+  cyclohexene: () => { const p = hexv(); return [[p, true], ...inner(p, [1])]; },
+  cyclopentane: () => [[hexv(22, -90, 5), true]],
+  hexene: () => { const z = zig(6); return [[z, false], dbl(z, 2, -1)]; },
+  methylpentane: () => { const z = zig(5), b = z[2]; return [[z, false], [[b, [b[0], b[1] - 26]], false]]; },
+};
+const LABELS = { benzene: "Benzene", toluene: "Toluene", isopropylcyclohexane: "Isopropylcyclohexane", cyclohexene: "Cyclohexene", cyclopentane: "Cyclopentane", hexene: "Hex-3-ene", methylpentane: "3-Methylpentane" };
+const pathD = ([pts, closed]) => "M" + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L") + (closed ? " Z" : "");
+const molPaths = type => TEMPLATES[type]().map(pathD);
+
+// ---------- state ----------
+let mols = INITIAL.map((m, i) => ({ id: i + 1, ...m }));
+let nextId = mols.length + 1, selected = null, drag = null;
+const svg = document.getElementById("stage");
+const $ = id => document.getElementById(id);
+const wrap = v => ((v % TILE) + TILE) % TILE;
+
+function el(name, attrs = {}, parent) { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function svgPoint(evt) { const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+
+function render() {
+  svg.innerHTML = "";
+  const real = $("chkReal").checked, repeat = $("chkRepeat").checked;
+  const op = real ? Number($("expOpacity").value) || 0.075 : 0.9;
+  el("rect", { x: -240, y: -240, width: 1440, height: 1440, fill: "#f5f7fa" }, svg);
+  if (repeat) {
+    const ghost = el("g", { fill: "none", stroke: "#1d3557", "stroke-opacity": real ? op : 0.22, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "pointer-events": "none" }, svg);
+    for (const dx of [-TILE, 0, TILE]) for (const dy of [-TILE, 0, TILE]) {
+      if (!dx && !dy) continue;
+      for (const m of mols) { const g = el("g", { transform: `translate(${m.x + dx} ${m.y + dy}) rotate(${m.angle})` }, ghost); molPaths(m.type).forEach(d => el("path", { d }, g)); }
+    }
+  }
+  el("rect", { x: 0, y: 0, width: TILE, height: TILE, fill: "none", stroke: "#7d8da6", "stroke-dasharray": "8 6", "stroke-width": 1.5, "pointer-events": "none" }, svg);
+  const layer = el("g", { "stroke-linecap": "round", "stroke-linejoin": "round", fill: "none" }, svg);
+  for (const m of mols) {
+    const isSel = selected === m.id;
+    const g = el("g", { transform: `translate(${m.x} ${m.y}) rotate(${m.angle})`, style: "cursor: move" }, layer);
+    el("circle", { r: 44, fill: isSel ? "rgba(29,78,137,0.08)" : "transparent", stroke: isSel ? "#1d4e89" : "none", "stroke-dasharray": "4 4" }, g);
+    const stroke = isSel ? "#1d4e89" : "#1d3557";
+    molPaths(m.type).forEach(d => el("path", { d, stroke, "stroke-opacity": isSel ? 1 : op, "stroke-width": isSel ? 2.5 : 2 }, g));
+    g.addEventListener("pointerdown", e => startDrag(e, m, "move"));
+    if (isSel) {
+      el("line", { x1: 0, y1: -44, x2: 0, y2: -64, stroke: "#1d4e89", "stroke-width": 1.5 }, g);
+      const h = el("circle", { cx: 0, cy: -70, r: 9, fill: "#1d4e89", stroke: "#fff", "stroke-width": 2, style: "cursor: grab" }, g);
+      h.addEventListener("pointerdown", e => { e.stopPropagation(); startDrag(e, m, "rotate"); });
+    }
+  }
+  syncPanel(); syncExport();
+}
+
+function startDrag(e, m, mode) {
+  e.preventDefault(); selected = m.id;
+  const p = svgPoint(e);
+  drag = { mode, id: m.id, ox: p.x - m.x, oy: p.y - m.y };
+  svg.setPointerCapture(e.pointerId);
+  render();
+}
+svg.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const m = mols.find(x => x.id === drag.id), p = svgPoint(e);
+  if (drag.mode === "move") { m.x = Math.round(p.x - drag.ox); m.y = Math.round(p.y - drag.oy); }
+  else { m.angle = Math.round(((Math.atan2(p.y - m.y, p.x - m.x) * 180 / Math.PI + 90) % 360 + 360) % 360); }
+  render();
+});
+svg.addEventListener("pointerup", () => { if (drag) { const m = mols.find(x => x.id === drag.id); if (m) { m.x = wrap(m.x); m.y = wrap(m.y); } drag = null; render(); } });
+svg.addEventListener("pointerdown", e => { if (e.target === svg || e.target.tagName === "rect") { selected = null; render(); } });
+
+// ---------- panel ----------
+for (const id of ["selType", "addType"]) for (const t in TEMPLATES) { const o = document.createElement("option"); o.value = t; o.textContent = LABELS[t]; $(id).appendChild(o); }
+function syncPanel() {
+  const m = mols.find(x => x.id === selected), on = !!m;
+  for (const id of ["selType", "selX", "selY", "selA", "btnDup", "btnDel"]) $(id).disabled = !on;
+  if (on && document.activeElement?.id?.startsWith("sel") !== true) { $("selType").value = m.type; $("selX").value = m.x; $("selY").value = m.y; $("selA").value = m.angle; }
+  if (!on) { $("selX").value = $("selY").value = $("selA").value = ""; }
+}
+const selM = () => mols.find(x => x.id === selected);
+$("selType").addEventListener("change", e => { const m = selM(); if (m) { m.type = e.target.value; render(); } });
+$("selX").addEventListener("input", e => { const m = selM(); if (m && e.target.value !== "") { m.x = wrap(Number(e.target.value)); render(); } });
+$("selY").addEventListener("input", e => { const m = selM(); if (m && e.target.value !== "") { m.y = wrap(Number(e.target.value)); render(); } });
+$("selA").addEventListener("input", e => { const m = selM(); if (m && e.target.value !== "") { m.angle = ((Number(e.target.value) % 360) + 360) % 360; render(); } });
+$("btnDup").addEventListener("click", () => { const m = selM(); if (!m) return; const c = { ...m, id: nextId++, x: wrap(m.x + 60), y: wrap(m.y + 60) }; mols.push(c); selected = c.id; render(); });
+$("btnDel").addEventListener("click", () => { mols = mols.filter(x => x.id !== selected); selected = null; render(); });
+$("btnAdd").addEventListener("click", () => { const c = { id: nextId++, type: $("addType").value, x: 480, y: 480, angle: 0 }; mols.push(c); selected = c.id; render(); });
+$("chkReal").addEventListener("change", render);
+$("chkRepeat").addEventListener("change", render);
+$("expOpacity").addEventListener("input", render);
+
+document.addEventListener("keydown", e => {
+  const tag = document.activeElement?.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  const m = selM(); if (!m) return;
+  const step = e.shiftKey ? 10 : 1, rot = e.shiftKey ? 15 : 5;
+  const acts = { ArrowLeft: () => m.x = wrap(m.x - step), ArrowRight: () => m.x = wrap(m.x + step), ArrowUp: () => m.y = wrap(m.y - step), ArrowDown: () => m.y = wrap(m.y + step),
+    "[": () => m.angle = ((m.angle - rot) % 360 + 360) % 360, "]": () => m.angle = (m.angle + rot) % 360, "{": () => m.angle = ((m.angle - 15) % 360 + 360) % 360, "}": () => m.angle = (m.angle + 15) % 360,
+    Delete: () => { mols = mols.filter(x => x.id !== m.id); selected = null; }, Backspace: () => { mols = mols.filter(x => x.id !== m.id); selected = null; } };
+  if (acts[e.key]) { e.preventDefault(); acts[e.key](); render(); }
+});
+
+// ---------- export ----------
+function layoutJson() { return JSON.stringify(mols.map(({ type, x, y, angle }) => ({ type, x, y, angle }))); }
+function wallpaperSvg() {
+  const op = Number($("expOpacity").value) || 0.075, parts = [];
+  for (const m of mols) for (const dx of [-TILE, 0, TILE]) for (const dy of [-TILE, 0, TILE]) {
+    const cx = m.x + dx, cy = m.y + dy;
+    if (cx < -60 || cx > TILE + 60 || cy < -60 || cy > TILE + 60) continue;
+    parts.push(`<g transform="translate(${cx} ${cy}) rotate(${m.angle})">` + molPaths(m.type).map(d => `<path d="${d}"/>`).join("") + "</g>");
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${TILE}" viewBox="0 0 ${TILE} ${TILE}"><g fill="none" stroke="#1d3557" stroke-opacity="${op}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${parts.join("")}</g></svg>`;
+}
+let syncExport = function () { $("outJson").value = layoutJson(); $("outSvg").value = wallpaperSvg(); };
+async function copy(id) {
+  const ta = $(id);
+  try { await navigator.clipboard.writeText(ta.value); $("status").textContent = "Copied."; }
+  catch { ta.focus(); ta.select(); $("status").textContent = "Selected. Press Ctrl+C or Cmd+C to copy."; }
+}
+$("btnCopyJson").addEventListener("click", () => copy("outJson"));
+$("btnCopySvg").addEventListener("click", () => copy("outSvg"));
+$("btnLoad").addEventListener("click", () => {
+  try {
+    const data = JSON.parse($("outJson").value).map(d => ({ ...d, type: d.type === "cyclohexane" ? "isopropylcyclohexane" : d.type }));
+    if (!Array.isArray(data) || !data.every(d => TEMPLATES[d.type] && isFinite(d.x) && isFinite(d.y) && isFinite(d.angle))) throw new Error("bad");
+    mols = data.map((d, i) => ({ id: i + 1, type: d.type, x: wrap(+d.x), y: wrap(+d.y), angle: +d.angle })); nextId = mols.length + 1; selected = null; render();
+    $("status").textContent = "Layout loaded.";
+  } catch { $("status").textContent = "That doesn't look like a layout from this editor."; }
+});
+$("outJson").removeAttribute("readonly");
+
+// ---------- preview on the hi-fi mockups ----------
+const MOCKS = {"home-laptop": {"w": 1440, "h": 960, "html": "<main style=\"width: 1440px; height: 960px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\"><a class=\"oh-wordmark\" href=\"Main.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\"><a href=\"#\" style=\"display: inline-flex; align-items: center; gap: 6px;\">Practice Problems <svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 4.5l3 3 3-3\"></path></svg></a><a href=\"#\">Lectures</a><a href=\"SignIn-laptop.dc.html\" style=\"display: inline-flex; align-items: center; gap: 6px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"5.5\" r=\"2.75\"></circle><path d=\"M2.75 14c.6-2.7 2.7-4.25 5.25-4.25s4.65 1.55 5.25 4.25\"></path></svg>Sign in</a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: 1024px; margin: 0 auto; padding: 88px var(--space-6) 88px; display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; gap: var(--space-3); text-align: center; align-items: center;\"><h1 style=\"margin: 0; font-size: 56px; line-height: 60px; font-weight: 700; letter-spacing: -0.01em; color: var(--heading);\">Practice naming organic molecules</h1><p style=\"margin: 0; font-size: 16px; line-height: 24px; color: var(--ink-muted);\">Free. Sign in with Google or Apple.</p></div><div style=\"display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8); align-items: stretch; margin-top: 48px;\"><article class=\"oh-card oh-card--active\" style=\"display: flex; flex-direction: column;\"><h3>Practice</h3><p>Unlimited problems with instant answers. Pick a topic:</p><nav aria-label=\"Practice topics\" style=\"display: flex; flex-direction: column; border: 1px solid var(--mist); border-radius: var(--radius-sm); overflow: hidden;\"><a href=\"SignIn-laptop.dc.html\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 68px; padding: var(--space-2) var(--space-4); text-decoration: none; border-bottom: 1px solid var(--mist); background: var(--surface-raised);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--heading);\">IUPAC naming</span><span style=\"font-size: 14px; line-height: 20px; color: var(--ink-muted);\">Name generated molecules</span></span><span style=\"display: inline-flex; align-items: center; gap: 2px; height: 32px; padding: 0 10px 0 var(--space-3); border-radius: var(--radius-sm); background: var(--brand); color: var(--on-brand); font-size: 14px; font-weight: 600;\">Start <svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3.5L10.5 8 6 12.5\"></path></svg></span></a><a href=\"#\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 56px; padding: var(--space-2) var(--space-4); text-decoration: none; border-bottom: 1px solid var(--mist); background: var(--surface);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--ink-muted);\">Synthesis</span></span><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap;\">Coming soon</span></a><a href=\"#\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 56px; padding: var(--space-2) var(--space-4); text-decoration: none;  background: var(--surface);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--ink-muted);\">Acid/Base chemistry</span></span><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap;\">Coming soon</span></a></nav></article><article class=\"oh-card\" style=\"display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); aspect-ratio: 16 / 9; margin-bottom: var(--space-6); background: var(--surface); border: 1px dashed var(--mist); border-radius: var(--radius-sm); text-align: center;\"><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy);\">Coming soon</span><span style=\"font-size: 14px; line-height: 20px; color: var(--ink-muted);\">Videos are on the way.</span></div><h3>Learn</h3><p>Short videos that teach each topic, then show it on the site.</p><a class=\"oh-btn\" href=\"https://www.youtube.com\" style=\"margin-top: auto; align-self: flex-start;\">Watch the videos</a></article></div></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}, "home-phone": {"w": 375, "h": 1240, "html": "<main style=\"width: 375px; height: 1240px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\" style=\"padding: 0 var(--space-4); gap: var(--space-3);\"><a class=\"oh-wordmark\" href=\"Home-phone.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\" style=\"gap: var(--space-4);\"><a href=\"SignIn-phone.dc.html\" style=\"display: inline-flex; align-items: center; gap: 6px;\">Sign in</a><a href=\"#\" aria-label=\"Open menu\" style=\"width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 0;\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M4 6h14M4 11h14M4 16h14\"></path></svg></a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: 1024px; margin: 0 auto; padding: 28px var(--space-4) 56px; display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; gap: var(--space-3); \"><h1 style=\"margin: 0; font-size: 38px; line-height: 44px; font-weight: 700; letter-spacing: -0.01em; color: var(--heading);\">Practice naming organic molecules</h1><p style=\"margin: 0; font-size: 16px; line-height: 24px; color: var(--ink-muted);\">Free. Sign in with Google or Apple.</p></div><div style=\"display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: var(--space-4); align-items: stretch; margin-top: 28px;\"><article class=\"oh-card oh-card--active\" style=\"display: flex; flex-direction: column;\"><h3>Practice</h3><p>Unlimited problems with instant answers. Pick a topic:</p><nav aria-label=\"Practice topics\" style=\"display: flex; flex-direction: column; border: 1px solid var(--mist); border-radius: var(--radius-sm); overflow: hidden;\"><a href=\"SignIn-phone.dc.html\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 68px; padding: var(--space-2) var(--space-4); text-decoration: none; border-bottom: 1px solid var(--mist); background: var(--surface-raised);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--heading);\">IUPAC naming</span><span style=\"font-size: 14px; line-height: 20px; color: var(--ink-muted);\">Name generated molecules</span></span><span style=\"display: inline-flex; align-items: center; gap: 2px; height: 32px; padding: 0 10px 0 var(--space-3); border-radius: var(--radius-sm); background: var(--brand); color: var(--on-brand); font-size: 14px; font-weight: 600;\">Start <svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3.5L10.5 8 6 12.5\"></path></svg></span></a><a href=\"#\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 56px; padding: var(--space-2) var(--space-4); text-decoration: none; border-bottom: 1px solid var(--mist); background: var(--surface);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--ink-muted);\">Synthesis</span></span><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap;\">Coming soon</span></a><a href=\"#\" style=\"display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 56px; padding: var(--space-2) var(--space-4); text-decoration: none;  background: var(--surface);\"><span style=\"display: flex; flex-direction: column;\"><span style=\"font-weight: 600; font-size: 17px; color: var(--ink-muted);\">Acid/Base chemistry</span></span><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy); white-space: nowrap;\">Coming soon</span></a></nav></article><article class=\"oh-card\" style=\"display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); aspect-ratio: 16 / 9; margin-bottom: var(--space-6); background: var(--surface); border: 1px dashed var(--mist); border-radius: var(--radius-sm); text-align: center;\"><span style=\"display: inline-flex; align-items: center; height: 28px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--surface-raised); font-size: 14px; font-weight: 600; color: var(--navy);\">Coming soon</span><span style=\"font-size: 14px; line-height: 20px; color: var(--ink-muted);\">Videos are on the way.</span></div><h3>Learn</h3><p>Short videos that teach each topic, then show it on the site.</p><a class=\"oh-btn\" href=\"https://www.youtube.com\" style=\"margin-top: auto; justify-content: center; align-self: stretch;\">Watch the videos</a></article></div></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\" style=\"flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-6) var(--space-4);\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\" style=\"flex-wrap: wrap; gap: var(--space-4) var(--space-6);\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}, "signin-laptop": {"w": 1440, "h": 900, "html": "<main style=\"width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\"><a class=\"oh-wordmark\" href=\"Main.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\"><a href=\"#\" style=\"display: inline-flex; align-items: center; gap: 6px;\">Practice Problems <svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 4.5l3 3 3-3\"></path></svg></a><a href=\"#\">Lectures</a><a href=\"SignIn-laptop.dc.html\" style=\"display: inline-flex; align-items: center; gap: 6px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"5.5\" r=\"2.75\"></circle><path d=\"M2.75 14c.6-2.7 2.7-4.25 5.25-4.25s4.65 1.55 5.25 4.25\"></path></svg>Sign in</a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: var(--content-max); margin: 0 auto; padding: 72px var(--space-6) 72px; display: flex; flex-direction: column;\"><section class=\"oh-card\" style=\"display: flex; flex-direction: column; gap: var(--space-6); width: 100%; max-width: 440px; box-sizing: border-box; margin: 0 auto; padding: 40px;\"><h1 style=\"margin: 0; font-size: 36px; line-height: 44px; font-weight: 700; color: var(--heading);\">Sign in</h1><p style=\"margin: 0; font-size: 17px; line-height: 26px; color: var(--ink-muted);\">Sign in to continue to IUPAC naming practice.</p><div style=\"display: flex; flex-direction: column; gap: var(--space-3);\"><a class=\"oh-btn\" href=\"Generator-laptop.dc.html\" style=\"justify-content: center;\">Continue with Google</a><a class=\"oh-btn\" href=\"Generator-laptop.dc.html\" style=\"justify-content: center;\">Continue with Apple</a></div><p style=\"margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted);\">By continuing, you agree to our <a class=\"oh-link\" href=\"#\">Terms</a> and <a class=\"oh-link\" href=\"#\">Privacy Policy</a>.</p></section></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}, "signin-phone": {"w": 375, "h": 667, "html": "<main style=\"width: 375px; height: 667px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\" style=\"padding: 0 var(--space-4); gap: var(--space-3);\"><a class=\"oh-wordmark\" href=\"Home-phone.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\" style=\"gap: var(--space-4);\"><a href=\"SignIn-phone.dc.html\" style=\"display: inline-flex; align-items: center; gap: 6px;\">Sign in</a><a href=\"#\" aria-label=\"Open menu\" style=\"width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 0;\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M4 6h14M4 11h14M4 16h14\"></path></svg></a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: var(--content-max); margin: 0 auto; padding: 24px var(--space-4) 48px; display: flex; flex-direction: column;\"><section class=\"oh-card\" style=\"display: flex; flex-direction: column; gap: var(--space-6); width: 100%; max-width: 440px; box-sizing: border-box; margin: 0 auto; padding: var(--space-6);\"><h1 style=\"margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; color: var(--heading);\">Sign in</h1><p style=\"margin: 0; font-size: 17px; line-height: 26px; color: var(--ink-muted);\">Sign in to continue to IUPAC naming practice.</p><div style=\"display: flex; flex-direction: column; gap: var(--space-3);\"><a class=\"oh-btn\" href=\"Generator-phone.dc.html\" style=\"justify-content: center;\">Continue with Google</a><a class=\"oh-btn\" href=\"Generator-phone.dc.html\" style=\"justify-content: center;\">Continue with Apple</a></div><p style=\"margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted);\">By continuing, you agree to our <a class=\"oh-link\" href=\"#\">Terms</a> and <a class=\"oh-link\" href=\"#\">Privacy Policy</a>.</p></section></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\" style=\"flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-6) var(--space-4);\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\" style=\"flex-wrap: wrap; gap: var(--space-4) var(--space-6);\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}, "generator-laptop": {"w": 1440, "h": 900, "html": "<main style=\"width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\"><a class=\"oh-wordmark\" href=\"Main.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\"><a href=\"#\" aria-current=\"page\" style=\"display: inline-flex; align-items: center; gap: 6px;\">Practice Problems <svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 4.5l3 3 3-3\"></path></svg></a><a href=\"#\">Lectures</a><a href=\"#\" style=\"display: inline-flex; align-items: center; gap: 6px;\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"5.5\" r=\"2.75\"></circle><path d=\"M2.75 14c.6-2.7 2.7-4.25 5.25-4.25s4.65 1.55 5.25 4.25\"></path></svg>Account</a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: var(--practice-max); margin: 0 auto; padding: 40px var(--space-6) 48px; display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; gap: var(--space-2);\"><nav aria-label=\"Breadcrumb\" style=\"display: flex; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-muted);\"><a class=\"oh-link\" href=\"#\">Practice Problems</a><span aria-hidden=\"true\">\u203a</span><span aria-current=\"page\">IUPAC naming</span></nav><h1 style=\"margin: 0; font-size: 36px; line-height: 44px; font-weight: 700; color: var(--heading);\">IUPAC naming</h1></div><div style=\"margin-top: var(--space-6);\"><section class=\"oh-card oh-card--placeholder\" style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 480px; box-sizing: border-box;\"><h3>Generator area</h3><p style=\"max-width: 36ch;\">The IUPAC generator&#39;s screens appear here. They&#39;re designed in the generator&#39;s own project.</p></section></div></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}, "generator-phone": {"w": 375, "h": 800, "html": "<main style=\"width: 375px; height: 800px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface); color: var(--navy); font-family: var(--font-sans); font-size: 16px; line-height: 24px; overflow: hidden;\">\n<header class=\"oh-header oh-on-navy\" style=\"flex: none;\"><div class=\"oh-header__inner\" style=\"padding: 0 var(--space-4); gap: var(--space-3);\"><a class=\"oh-wordmark\" href=\"Home-phone.dc.html\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></a><nav class=\"oh-nav\" aria-label=\"Main\" style=\"gap: var(--space-4);\"><a href=\"#\" aria-label=\"Open menu\" style=\"width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 0;\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M4 6h14M4 11h14M4 16h14\"></path></svg></a></nav></div></header>\n<div class=\"oh-wallpaper\" style=\"flex: 1 0 auto; display: flex; flex-direction: column;\"><div style=\"flex: 1 0 auto; box-sizing: border-box; width: 100%; max-width: var(--practice-max); margin: 0 auto; padding: 32px var(--space-4) 48px; display: flex; flex-direction: column;\"><div style=\"display: flex; flex-direction: column; gap: var(--space-2);\"><nav aria-label=\"Breadcrumb\" style=\"display: flex; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-muted);\"><a class=\"oh-link\" href=\"#\">Practice Problems</a><span aria-hidden=\"true\">\u203a</span><span aria-current=\"page\">IUPAC naming</span></nav><h1 style=\"margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; color: var(--heading);\">IUPAC naming</h1></div><div style=\"margin-top: var(--space-6);\"><section class=\"oh-card oh-card--placeholder\" style=\"display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 420px; box-sizing: border-box;\"><h3>Generator area</h3><p style=\"max-width: 36ch;\">The IUPAC generator&#39;s screens appear here. They&#39;re designed in the generator&#39;s own project.</p></section></div></div></div>\n<footer class=\"oh-footer oh-on-navy\" style=\"flex: none;\"><div class=\"oh-footer__inner\" style=\"flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-6) var(--space-4);\"><span class=\"oh-wordmark\"><span class=\"orgo\">Orgo</span> <span class=\"helper\">Helper</span></span><nav class=\"oh-nav\" aria-label=\"Footer\" style=\"flex-wrap: wrap; gap: var(--space-4) var(--space-6);\"><a href=\"#\">About</a><a href=\"#\">Privacy</a><a href=\"#\">Terms</a><a href=\"#\">Contact</a></nav></div></footer>\n</main>"}};
+const MOCK_CSS = ":host{--surface:#f5f7fa;--surface-raised:#ffffff;--navy:#12203a;--heading:#1d3557;--ink-muted:#45526a;--brand:#1d4e89;--on-brand:#ffffff;--sky:#3386e0;--mist:#aebdd0;--line-strong:#7d8da6;--error:#c01c28;--success:#1d4e89;--font-sans:\"Source Sans 3\",\"Source Sans Pro\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-hand:Kalam,\"Comic Neue\",cursive;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-16:64px;--radius-sm:6px;--radius-lg:12px;--radius-pill:999px;--focus-ring:0 0 0 2px #f5f7fa,0 0 0 4px #1d4e89;--content-max:1216px;--practice-max:1016px;--header-height:60px;--control-height:52px}\n700&family=Source+Sans+3:wght@400;600;700&display=swap');\n\n/* Orgo Helper component styles. Every value comes from tokens.json via its --name. */\nbody { margin: 0; font-family: var(--font-sans); font-size: 16px; line-height: 24px; background: var(--surface); color: var(--navy); }\n.oh-pad { padding: var(--space-6); }\n.oh-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }\n:where(.oh-btn, .oh-chip, .oh-input, .oh-link, .oh-nav a):focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }\n\n/* Wordmark */\n.oh-wordmark { font-family: var(--font-hand); font-size: 30px; line-height: 36px; font-weight: 400; letter-spacing: .04em; text-decoration: none; white-space: nowrap; }\n.oh-wordmark .orgo { color: var(--navy); }\n.oh-wordmark .helper { color: var(--sky); }\n.oh-on-navy .oh-wordmark .orgo { color: var(--surface); }\n\n/* Header / Footer */\n.oh-header, .oh-footer { background: var(--navy); color: var(--surface); }\n.oh-header__inner, .oh-footer__inner { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--space-6); display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }\n.oh-header__inner { height: var(--header-height); }\n.oh-footer__inner { padding-top: var(--space-6); padding-bottom: var(--space-6); }\n.oh-nav { display: flex; gap: var(--space-8); align-items: center; }\n.oh-nav a { color: var(--mist); font-size: 15px; font-weight: 600; text-decoration: none; padding: var(--space-2) 0; border-bottom: 2px solid transparent; }\n.oh-nav a:hover, .oh-nav a[aria-current=\"page\"] { color: var(--surface); }\n.oh-nav a[aria-current=\"page\"] { border-bottom-color: var(--surface); }\n.oh-footer .oh-nav { gap: var(--space-6); }\n.oh-footer .oh-nav a { color: var(--surface); font-weight: 400; text-decoration: underline; }\n\n/* Button */\n.oh-btn { font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control-height); padding: 0 var(--space-6); border-radius: var(--radius-sm); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--navy); cursor: pointer; text-decoration: none; }\n.oh-btn--primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }\n.oh-btn--small { height: 40px; padding: 0 var(--space-4); font-size: 15px; }\n.oh-btn:disabled, .oh-btn[aria-disabled=\"true\"] { background: var(--mist); border-color: var(--mist); color: var(--ink-muted); cursor: not-allowed; }\n.oh-link { color: var(--navy); font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }\n\n/* Chip */\n.oh-chip { font: inherit; font-size: 14px; line-height: 20px; font-weight: 600; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--navy); cursor: pointer; }\n.oh-chip[aria-pressed=\"true\"] { border-color: var(--brand); background: var(--brand); color: var(--on-brand); }\n\n/* Card */\n.oh-card { background: var(--surface-raised); border: 1px solid var(--mist); border-radius: var(--radius-lg); padding: var(--space-6); color: var(--navy); }\n.oh-card--active { border-color: var(--brand); }\n.oh-card--placeholder { background: transparent; border-style: dashed; }\n.oh-card h3 { margin: 0 0 var(--space-3); font-size: 24px; line-height: 30px; font-weight: 700; color: var(--heading); }\n.oh-card p { margin: 0 0 var(--space-3); color: var(--ink-muted); }\n.oh-card--placeholder h3 { color: var(--ink-muted); }\n\n/* Text field */\n.oh-field { display: grid; gap: var(--space-2); }\n.oh-field label { font-size: 14px; font-weight: 600; color: var(--navy); }\n.oh-input { font: inherit; font-size: 18px; height: var(--control-height); padding: 0 var(--space-4); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--navy); min-width: 0; }\n.oh-input::placeholder { color: var(--ink-muted); }\n\n/* Feedback */\n.oh-feedback { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--space-4); padding: var(--space-4) var(--space-6); border: 1px solid var(--brand); border-radius: var(--radius-lg); background: var(--surface-raised); }\n.oh-feedback__icon { width: 30px; height: 30px; border-radius: var(--radius-pill); background: var(--success); color: var(--on-brand); display: grid; place-items: center; font-weight: 700; }\n.oh-feedback h4 { margin: 0 0 var(--space-1); font-size: 24px; line-height: 30px; font-weight: 700; color: var(--success); }\n.oh-feedback p { margin: 0; }\n.oh-feedback .oh-meta { color: var(--ink-muted); font-size: 14px; }\n.oh-feedback--wrong { border-color: var(--error); }\n.oh-feedback--wrong .oh-feedback__icon { background: var(--error); }\n.oh-feedback--wrong h4 { color: var(--error); }\n.oh-kbd { font: inherit; font-size: 13px; font-weight: 600; padding: 1px var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-raised); }\n\n/* Progress */\n.oh-progress { display: flex; align-items: center; gap: var(--space-6); font-size: 15px; }\n.oh-progress__track { flex: 1; max-width: 320px; height: 8px; background: var(--surface-raised); border: 1px solid var(--mist); border-radius: var(--radius-pill); overflow: hidden; }\n.oh-progress__fill { height: 100%; background: var(--brand); }\n\n/* Molecule panel \u2014 deliberately minimal; the editor's own look will be designed later */\n.oh-molecule { background: var(--surface-raised); border: 1px solid var(--mist); border-radius: var(--radius-lg); min-height: 240px; display: grid; place-items: center; padding: var(--space-6); }\n\n.oh-wallpaper{background-color:#f5f7fa;background-image:var(--wp);background-size:960px 960px;background-repeat:repeat}\nmain{display:flex}";
+const host = $("previewHost"), shadow = host.attachShadow({ mode: "open" });
+let previewUrl = null, previewing = false, previewKey = null;
+function setMode(p) {
+  previewing = p;
+  $("tabEdit").setAttribute("aria-pressed", String(!p)); $("tabPreview").setAttribute("aria-pressed", String(p));
+  $("stage").toggleAttribute("hidden", p); $("preview").toggleAttribute("hidden", !p); $("previewCtl").toggleAttribute("hidden", !p);
+  if (p) renderPreview();
+}
+function renderPreview() {
+  if (!previewing) return;
+  const key = $("pvPage").value + "-" + $("pvSize").value, mk = MOCKS[key];
+  if (key !== previewKey) { shadow.innerHTML = "<style>" + MOCK_CSS + "</style>" + mk.html; previewKey = key; }
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = URL.createObjectURL(new Blob([wallpaperSvg()], { type: "image/svg+xml" }));
+  host.style.setProperty("--wp", `url("${previewUrl}")`);
+  const avail = $("preview").clientWidth - 26;
+  const scale = $("pvFit").checked ? Math.min(1, avail / mk.w) : 1;
+  host.style.width = mk.w + "px"; host.style.height = mk.h + "px"; host.style.transform = `scale(${scale})`;
+  $("previewBox").style.width = mk.w * scale + "px"; $("previewBox").style.height = mk.h * scale + "px";
+}
+$("tabEdit").addEventListener("click", () => setMode(false));
+$("tabPreview").addEventListener("click", () => setMode(true));
+for (const id of ["pvPage", "pvSize", "pvFit"]) $(id).addEventListener("change", renderPreview);
+window.addEventListener("resize", renderPreview);
+const _syncExport = syncExport;
+syncExport = function () { _syncExport(); renderPreview(); };
+render();
+</script>
+</body>
+</html>

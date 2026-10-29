@@ -1,0 +1,104 @@
+{
+ "tile": 960,
+ "strokeColor": "#1d3557",
+ "strokeOpacity": 0.075,
+ "strokeWidth": 2,
+ "molecules": [
+  {
+   "type": "cyclohexene",
+   "x": 157.7,
+   "y": 83.4,
+   "angle": 130.5
+  },
+  {
+   "type": "isopropylcyclohexane",
+   "x": 404,
+   "y": 161.5,
+   "angle": 343.3
+  },
+  {
+   "type": "isopropylcyclohexane",
+   "x": 627.3,
+   "y": 78.5,
+   "angle": 230
+  },
+  {
+   "type": "isopropylcyclohexane",
+   "x": 809.5,
+   "y": 109.6,
+   "angle": 71.6
+  },
+  {
+   "type": "methylpentane",
+   "x": 120.6,
+   "y": 394.7,
+   "angle": 67.1
+  },
+  {
+   "type": "hexene",
+   "x": 320.2,
+   "y": 375.3,
+   "angle": 175.3
+  },
+  {
+   "type": "benzene",
+   "x": 591.8,
+   "y": 322.9,
+   "angle": 194.8
+  },
+  {
+   "type": "cyclohexene",
+   "x": 832.4,
+   "y": 405.1,
+   "angle": 161.5
+  },
+  {
+   "type": "toluene",
+   "x": 132.1,
+   "y": 590.3,
+   "angle": 271.4
+  },
+  {
+   "type": "hexene",
+   "x": 311.5,
+   "y": 632.7,
+   "angle": 215.1
+  },
+  {
+   "type": "toluene",
+   "x": 625.4,
+   "y": 643.3,
+   "angle": 214.2
+  },
+  {
+   "type": "benzene",
+   "x": 878.9,
+   "y": 578.7,
+   "angle": 228.4
+  },
+  {
+   "type": "methylpentane",
+   "x": 116.7,
+   "y": 802.7,
+   "angle": 158.8
+  },
+  {
+   "type": "cyclopentane",
+   "x": 340.7,
+   "y": 883.1,
+   "angle": 289
+  },
+  {
+   "type": "cyclopentane",
+   "x": 642.9,
+   "y": 860.1,
+   "angle": 278
+  },
+  {
+   "type": "benzene",
+   "x": 827.5,
+   "y": 821.9,
+   "angle": 160.4
+  }
+ ]
+}
