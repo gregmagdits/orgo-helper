@@ -69,6 +69,7 @@ Generators that aren't available yet appear in the menu marked "Coming soon," so
 - **Laptop and tablet first, phones where possible:** the site is designed primarily for laptops and tablets, and as much of it as possible is also made available on phones. Each generator is either phone-friendly or desktop-only: if a generator's design is too complicated to fit comfortably on a phone, it gets no phone version, and phone visitors are told to come back on a laptop or tablet.
 - **Sign-in required:** via Google or Apple, partly to deter scraping. The site backs this up with per-account rate limiting; each generator is responsible for keeping its own answers on the server.
 - **Accounts and hosting:** a GitHub account and an AWS account are set up for the project.
+- **S3 bucket:** `orgo-helper` was created in us-east-1 (October 2026). It's private, with all public access blocked, default AES256 encryption and versioning enabled. A lifecycle rule deletes old versions 90 days after they're replaced, always keeping the 2 most recent, and cleans up unfinished uploads after 7 days. Its role, such as a static-site origin behind CloudFront or asset storage, will be settled along with the hosting setup.
 - **Privacy policy and terms** are needed before launch, since the site stores information from people's Google and Apple accounts.
 
 **TODO:** document the stack (framework, database, hosting setup on AWS), deployment process and repository layout.
