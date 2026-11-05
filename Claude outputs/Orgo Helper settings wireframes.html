@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgo Helper settings · lo-fi wireframes</title>
+<style>
+html{background:#f5f4ef;color:#1f1e1d;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{margin:0;padding:48px;display:flex;flex-direction:column;gap:56px}
+@media (max-width:700px){body{padding:24px 16px}}
+.intro{max-width:900px}
+.intro h1{margin:0 0 8px;font-size:22px}
+.intro p{margin:0 0 6px;color:#4a4947}
+.board h2{margin:0 0 12px;font-size:13px;font-weight:500;color:#6b6a68}
+.scaler{width:100%;max-width:1440px;overflow:hidden}
+.frame{width:1440px;transform-origin:0 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.notes{max-width:1100px;margin:14px 0 0;padding:0 0 0 18px;color:#4a4947;font-size:13px}
+.notes li{margin:3px 0}
+.notes b{color:#1f1e1d;font-weight:600}
+
+/* ---- background site page (matches site wireframes) ---- */
+.page{position:relative;height:900px;overflow:hidden;color:#333;font-size:15px;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 160px;border-bottom:1px solid #d4d4d4;flex:none}
+.logo{width:112px;height:28px;background:#dcdcdc;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.06em;color:#555}
+.nav{display:flex;gap:28px;align-items:center}
+.nav span{text-decoration:underline;text-underline-offset:3px}
+.body{padding:32px 160px;display:flex;flex-direction:column;gap:18px}
+.crumb{font-size:13px;color:#555}
+.ttl{display:flex;justify-content:space-between;align-items:center}
+.h1{margin:0;font-size:40px;font-weight:700}
+.gearbtn{height:38px;padding:0 14px;border:1px solid #888;border-radius:4px;display:inline-flex;align-items:center;gap:8px;font-size:14px;background:#fff}
+.gearbtn.hot{outline:2px dashed #333;outline-offset:3px}
+.ph{background:#ececec;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px}
+.scrim{position:absolute;inset:0;background:rgba(40,40,40,.55)}
+
+/* ---- modal ---- */
+.modal{position:absolute;left:160px;top:56px;width:1120px;height:788px;background:#fff;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);display:grid;grid-template-columns:268px 1fr;overflow:hidden}
+.mnav{border-right:1px solid #e0e0e0;padding:18px 14px;display:flex;flex-direction:column;gap:2px;font-size:14px;background:#fafafa}
+.srch{height:34px;border:1px solid #bdbdbd;border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:#999;margin-bottom:14px;background:#fff}
+.grp{font-size:12px;color:#777;margin:12px 8px 4px}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:#333}
+.ni .ic{width:16px;height:16px;border:1.5px solid #777;border-radius:4px;flex:none}
+.ni.sel{background:#e2e2e2;font-weight:600}
+.ni.dim{color:#aaa}.ni.dim .ic{border-color:#ccc}
+.ni .tag{margin-left:auto;font-size:11px;border:1px solid #ccc;border-radius:10px;padding:0 7px;color:#999;font-weight:400}
+.ni .warn{margin-left:auto;width:18px;height:18px;border-radius:50%;background:#333;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.mbody{position:relative;display:flex;flex-direction:column;min-height:0}
+.x{position:absolute;right:20px;top:16px;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#555}
+.mscroll{flex:1;overflow:hidden;padding:24px 36px 24px 32px}
+.mh{font-size:18px;font-weight:700;margin:0 0 4px}
+.msub{font-size:13px;color:#666;margin:0 0 14px;max-width:640px}
+.sh{font-size:13px;font-weight:700;margin:20px 0 2px;color:#333;text-transform:uppercase;letter-spacing:.05em}
+.r{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:13px 0;border-bottom:1px solid #e6e6e6}
+.r .t{font-size:14px;color:#222}
+.r .d{font-size:12.5px;color:#777;margin-top:2px}
+.r.top{align-items:flex-start}
+.r.err .t{font-weight:600}
+.errtx{font-size:12.5px;color:#222;margin-top:4px;display:flex;gap:6px;align-items:center}
+.errtx:before{content:"!";width:15px;height:15px;border-radius:50%;background:#333;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.ctl{flex:none;display:flex;align-items:center;gap:8px}
+.tg{width:38px;height:22px;border-radius:11px;background:#ccc;position:relative;display:inline-block}
+.tg:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.tg.on{background:#333}.tg.on:after{left:19px}
+.seg{display:inline-flex;border:1px solid #999;border-radius:6px;overflow:hidden;font-size:13px}
+.seg span{padding:6px 12px;border-right:1px solid #999}.seg span:last-child{border-right:0}
+.seg .on{background:#333;color:#fff}
+.num{width:46px;height:30px;border:1px solid #999;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+.num.bad{border:2px solid #333}
+.dd{min-width:180px;height:32px;border:1px solid #999;border-radius:5px;display:inline-flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;gap:10px}
+.dd.bad{border:2px solid #333}
+.dash{color:#777;font-size:13px}
+.box{width:14px;height:14px;border:1.5px solid #555;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;line-height:1;flex:none}
+.box.on{background:#333;border-color:#333;color:#fff}
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 18px;padding:10px 0 4px;font-size:13px}
+.cg.c3{grid-template-columns:repeat(3,1fr)}
+.cg label{display:flex;align-items:center;gap:8px}
+.cg .h{grid-column:1/-1;font-size:12px;color:#777;margin-top:4px}
+.lnk{text-decoration:underline;text-underline-offset:3px;color:#444;font-size:13px}
+.card{border:1px solid #bdbdbd;border-radius:6px;padding:12px 14px;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.rad{display:flex;align-items:flex-start;gap:10px;font-size:14px}
+.rad .o{width:14px;height:14px;border-radius:50%;border:1.5px solid #555;flex:none;margin-top:2px;box-sizing:border-box}
+.rad .o.on{border:4.5px solid #333}
+.rad .d{font-size:12.5px;color:#777}
+.adv{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #e6e6e6;font-size:14px;font-weight:600}
+.banner{margin-right:40px;border:1px solid #999;background:#f0f0f0;border-radius:6px;padding:12px 14px;font-size:13.5px;margin-bottom:6px}
+.banner b{display:block;font-size:14px;margin-bottom:3px}
+.banner ul{margin:4px 0 0;padding-left:18px;color:#444}
+.saved{font-size:12px;color:#888;display:flex;align-items:center;gap:6px}
+.mfoot{border-top:1px solid #e0e0e0;padding:14px 32px;display:flex;justify-content:space-between;align-items:center;flex:none}
+.btn{height:38px;padding:0 18px;border-radius:5px;display:inline-flex;align-items:center;font-size:14px;border:1px solid #888;color:#333;background:#fff}
+.btn.pri{background:#333;border-color:#333;color:#fff}
+.soon{border:1.5px dashed #bbb;border-radius:8px;padding:28px;text-align:center;color:#888;margin-top:10px}
+.ghost{opacity:.35;pointer-events:none}
+.pill{font-size:12px;background:#e6e6e6;border-radius:10px;padding:2px 8px;color:#555}
+
+/* ---- phone ---- */
+.phones{padding:48px 160px;display:flex;gap:64px;align-items:flex-start;background:#fff}
+.phcol{display:flex;flex-direction:column;gap:10px;align-items:center}
+.phcap{font-size:13px;color:#666}
+.phone{width:375px;height:760px;border:1.5px solid #999;border-radius:22px;overflow:hidden;position:relative;display:flex;flex-direction:column;font-size:14px;color:#333}
+.pbar{height:52px;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-weight:700;flex:none}
+.pbar .s{font-weight:400;font-size:20px;color:#555}
+.plist .ni{padding:14px 16px;border-bottom:1px solid #eee;border-radius:0}
+.plist .grp{margin:16px 16px 4px}
+.pbody{padding:6px 16px;overflow:hidden}
+.pbody .r{padding:12px 0}
+.pbody .cg{grid-template-columns:1fr 1fr}
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>Orgo Helper settings · lo-fi wireframes</h1>
+  <p>One Settings window for the whole site, opened over the current page with the page dimmed behind it (a <b>modal dialog</b>, the same pattern as the Claude desktop app's Settings). Left column lists sections; the right side shows the selected section.</p>
+  <p>Structure: <b>Molecules</b> holds the molecule options every generator shares. Each generator then has its own section for settings only it needs, and can either follow the shared molecule options or override them. Laptop 1440 boards, plus a phone board at the end.</p>
+</div>
+<div id="boards"></div>
+
+<script>
+// ---------- tiny UI helpers ----------
+const box = on => `<span class="box ${on?'on':''}">${on?'✓':''}</span>`;
+const tg  = on => `<span class="tg ${on?'on':''}"></span>`;
+const seg = (opts, on) => `<span class="seg">${opts.map((o,i)=>`<span class="${i===on?'on':''}">${o}</span>`).join('')}</span>`;
+const num = (v,bad) => `<span class="num ${bad?'bad':''}">${v}</span>`;
+const range = (a,b,bad) => `${num(a)}<span class="dash">to</span>${num(b,bad)}`;
+const dd  = (v,bad) => `<span class="dd ${bad?'bad':''}">${v}<span>▾</span></span>`;
+const row = (t,d,ctl,cls='') => `<div class="r ${cls}"><div><div class="t">${t}</div>${d?`<div class="d">${d}</div>`:''}</div><div class="ctl">${ctl}</div></div>`;
+const checks = (items, cls='', st='') => `<div class="cg ${cls}" style="${st}">${items.map(it=> it[0]==='#' ? `<div class="h">${it.slice(1)}</div>` : `<label>${box(it.endsWith('*'))}${it.replace('*','')}</label>`).join('')}</div>`;
+const rad = (on,t,d) => `<div class="rad"><span class="o ${on?'on':''}"></span><div>${t}${d?`<div class="d">${d}</div>`:''}</div></div>`;
+
+// ---------- background page ----------
+function sitePage(gen='IUPAC naming', hot=false){
+  return `<div class="hdr"><div class="logo">LOGO</div><div class="nav"><span>Practice Problems ▾</span><span>Lectures</span><span>Account ▾</span></div></div>
+  <div class="body"><div class="crumb">Practice Problems / ${gen}</div>
+    <div class="ttl"><h1 class="h1">${gen}</h1><span class="gearbtn ${hot?'hot':''}">⚙ Settings</span></div>
+    <div class="ph" style="height:420px">Generator area (problem, answer box, score)</div>
+    <div class="ph" style="height:60px">Footer</div></div>`;
+}
+
+// ---------- modal ----------
+function mnav(sel, warn){
+  const it = (k,label,extra='') => `<div class="ni ${k===sel?'sel':''} ${extra==='soon'?'dim':''}"><span class="ic"></span>${label}${extra==='soon'?'<span class="tag">Coming soon</span>':''}${warn===k?'<span class="warn">!</span>':''}</div>`;
+  return `<div class="mnav"><div class="srch">⌕ Search settings</div>
+    <div class="grp">All generators</div>${it('mol','Molecules')}
+    <div class="grp">Generators</div>${it('iupac','IUPAC naming')}${it('syn','Synthesis')}${it('ab','Acid/Base','soon')}</div>`;
+}
+function modal(sel, content, {warn, foot}={}){
+  return `<div class="modal">${mnav(sel,warn)}<div class="mbody"><span class="x">✕</span><div class="mscroll">${content}</div>${foot||''}</div></div>`;
+}
+const savedFoot = `<div class="mfoot"><span class="saved">✓ Changes save automatically and apply to your next problem</span><span class="lnk">Reset this section to defaults</span></div>`;
+
+// ---------- section contents ----------
+const FG_ALL = ['#Hydrocarbons','Alkane*','Alkene*','Alkyne*','Aromatic',
+  '#Functional groups','Alcohol*','Alkyl halide*','Ether*','Thiol','Aldehyde','Ketone','Carboxylic acid','Ester','Amide','Amine','Nitrile','Acid chloride','Anhydride'];
+
+const molecules = `
+  <div class="mh">Molecules</div>
+  <p class="msub">Shared by every generator. Pick what your course covers once, and IUPAC naming, Synthesis and future generators all use it, unless you customize a generator separately.</p>
+  ${row('Course preset','Quick start: fills in the groups and sizes typical for that course. Changing anything below switches to Custom.', seg(['Semester 1','Semester 2','Custom'],0))}
+  <div class="r top" style="display:block"><div style="display:flex;justify-content:space-between"><div><div class="t">Allowed structures and functional groups</div><div class="d">Generators only build molecules from what's checked.</div></div><span class="lnk">Select all · Clear</span></div>${checks(FG_ALL)}</div>
+  ${row('Molecule size','Number of carbons in each molecule.', range(3,10))}
+  ${row('Include rings','Cycloalkanes and other cyclic molecules.', tg(true))}
+  ${row('Include heteroatoms in rings','Pyridine, furan, thiophene and similar. Needs Aromatic checked.', tg(false))}
+  ${row('Stereochemistry','When included, answers must give correct R/S and E/Z.', seg(['Off','Include'],0))}
+  <div class="sh" style="margin-top:22px">Used by</div>
+  <div class="d" style="font-size:13px;color:#555;padding-top:6px">IUPAC naming (following these) · Synthesis (customized: <span class="lnk">view</span>) · Acid/Base (coming soon)</div>`;
+
+const molCard = (custom) => `<div class="sh">Molecule options</div><div class="card">
+  ${rad(!custom,'Use the shared Molecules settings','Semester 1 · 7 groups · 3–10 carbons · rings on · stereo off &nbsp;<span class="lnk">Edit shared</span>')}
+  ${rad(custom,'Customize for IUPAC naming only','Changes here won\'t affect other generators.')}
+  ${custom?`<div style="padding-left:24px">${checks(['Alkane*','Alkene*','Alkyne*','Aromatic','Alcohol*','Alkyl halide*','Ether*','Aldehyde*','Ketone*','Carboxylic acid','Ester','Amine'],'')}<div style="display:flex;gap:20px;font-size:13px;align-items:center;padding-top:6px">Carbons ${range(3,10)} &nbsp; Rings ${tg(true)} &nbsp; Stereo ${seg(['Off','Include'],0)}</div></div>`:''}
+  </div>`;
+
+const iupacCore = (bad) => `
+  <div class="sh">What to practice</div>
+  ${row('Parent type','Choose one or more.', `${checks(bad?['Alkane','Alkene','Alkyne*','Aromatic']:['Alkane*','Alkene*','Alkyne*','Aromatic'],'','grid-template-columns:repeat(4,auto);padding:0;gap:0 16px')}`)}
+  ${row('Include cyclic parents','', tg(true))}
+  ${row('Allowed secondary groups','Picked from the groups allowed under Molecule options.', `<span class="pill">Alcohol</span><span class="pill">Alkyl halide</span><span class="pill">Ether</span><span class="lnk">Edit</span>`)}`;
+
+const iupacAdv = (open,bad) => open ? `
+  <div class="adv">▾ Advanced</div>
+  ${row('Parent chain length','Ring size for aromatic parents.', range(bad?4:3, bad?3:8, bad), bad?'err':'')}
+  ${bad?'<div class="errtx" style="margin:-6px 0 6px">Minimum is larger than maximum.</div>':''}
+  ${row('Most senior functional group','', dd(bad?'Carboxylic acid':'Any allowed', bad), bad?'err':'')}
+  ${bad?'<div class="errtx" style="margin:-6px 0 6px">Carboxylic acid isn\'t in your allowed groups. <span class="lnk">Allow it</span></div>':''}
+  ${row('Number of principal groups','', range(0,2))}
+  ${row('Number of secondary groups','', range(0,2))}
+  <div class="sh">Practice</div>
+  ${row('Count skipped problems in my score','', tg(false))}
+  ${row('Keyboard shortcuts','Enter submits · Enter again for next · S skips', tg(true))}`
+  : `<div class="adv">▸ Advanced <span style="font-weight:400;color:#777;font-size:13px">chain length, senior group, group counts, practice options</span></div>`;
+
+const iupac = (o={}) => `
+  ${o.bad?`<div class="banner"><b>No molecules match these settings</b>Fix the highlighted settings below, or try:<ul><li>Lowering the minimum chain length</li><li>Choosing "Any allowed" for most senior group</li></ul></div>`:''}
+  <div class="mh">IUPAC naming</div>
+  <p class="msub">Settings that only apply to the IUPAC naming generator.</p>
+  ${o.bad?'<div class="d" style="font-size:12.5px;color:#888;margin-bottom:-8px">(scrolled past Molecule options)</div>':molCard(o.custom)}
+  ${iupacCore(o.bad)}
+  ${iupacAdv(o.adv,o.bad)}`;
+
+const synthesis = `
+  <div class="mh">Synthesis</div>
+  <p class="msub">Settings that only apply to the Synthesis generator. Laptop and tablet only.</p>
+  <div class="sh">Molecule options</div><div class="card">
+    ${rad(false,'Use the shared Molecules settings','Semester 1 · 7 groups · 3–10 carbons')}
+    ${rad(true,'Customize for Synthesis only','Starting materials ≤ 4 carbons · target 5–9 carbons &nbsp;<span class="lnk">Edit</span>')}</div>
+  <div class="sh">Problems</div>
+  ${row('Problem type','', seg(['Forward','Retrosynthesis','Mix'],2))}
+  ${row('Number of steps','', range(2,4))}
+  ${row('Starting materials per problem','Maximum.', num(3))}
+  <div class="r top" style="display:block"><div class="t">Reactions allowed</div><div class="d">Only these reactions are used to build problems and appear in the reagent list.</div>
+  ${checks(['#Alkenes and alkynes','Hydrogenation*','Hydroboration–oxidation*','Halogenation*','#Substitution and elimination','SN2*','E2*','SN1 / E1','#Carbonyls','Grignard*','Aldol*','Wittig*','Reduction (NaBH₄, LiAlH₄)*','Oxidation (PCC, CrO₃)'],'c3')}</div>
+  <div class="sh">Practice</div>
+  ${row('Show hints after a wrong reagent','', tg(false))}`;
+
+const acidbase = `
+  <div class="mh">Acid/Base</div>
+  <p class="msub">This generator is coming soon.</p>
+  <div class="soon">Settings for Acid/Base will appear here when it launches.<br>It will follow your shared Molecules settings by default.</div>
+  <div class="ghost">${row('Problem type','', seg(['pKa ranking','Predict equilibrium','Mix'],0))}${row('Include resonance effects','', tg(true))}</div>`;
+
+const firstVisit = `
+  <div class="mh">Before you start: choose what to practice</div>
+  <p class="msub">You can change these any time with ⚙ Settings. Not sure? Pick your semester and go.</p>
+  ${row('My course','Sets the molecule options shared by all generators.', seg(['Semester 1','Semester 2','Custom'],0))}
+  ${iupacCore(false)}
+  ${iupacAdv(false)}`;
+const firstFoot = `<div class="mfoot"><span class="lnk">Use defaults</span><span class="btn pri">Start practicing →</span></div>`;
+
+// ---------- phone ----------
+const phoneList = `<div class="phone"><div class="pbar"><span>Settings</span><span class="s">✕</span></div><div class="plist">
+  <div class="srch" style="margin:12px 16px 0">⌕ Search settings</div>
+  <div class="grp">All generators</div><div class="ni"><span class="ic"></span>Molecules<span style="margin-left:auto">›</span></div>
+  <div class="grp">Generators</div><div class="ni"><span class="ic"></span>IUPAC naming<span style="margin-left:auto">›</span></div>
+  <div class="ni"><span class="ic"></span>Synthesis<span class="tag" style="margin-left:auto;font-size:11px;color:#999">Laptop/tablet</span></div>
+  <div class="ni dim"><span class="ic"></span>Acid/Base<span class="tag">Coming soon</span></div></div></div>`;
+const phoneSec = `<div class="phone"><div class="pbar"><span><span class="s">‹</span>&nbsp; IUPAC naming</span><span class="s">✕</span></div><div class="pbody">
+  <div class="sh">Molecule options</div><div class="card">${rad(true,'Use shared Molecules','Semester 1 · 7 groups')}${rad(false,'Customize for IUPAC only')}</div>
+  <div class="sh">What to practice</div>
+  <div class="r top" style="display:block"><div class="t">Parent type</div>${checks(['Alkane*','Alkene*','Alkyne*','Aromatic'])}</div>
+  ${row('Include cyclic parents','', tg(true))}
+  ${row('Secondary groups','3 allowed', '<span class="lnk">Edit</span>')}
+  <div class="adv">▸ Advanced</div></div></div>`;
+
+// ---------- boards ----------
+const page = (bg, m) => `<div class="page">${bg}<div class="scrim"></div>${m}</div>`;
+const screens = [
+{
+  title:'1 · Molecules (shared by all generators)',
+  html: page(sitePage('IUPAC naming', true), modal('mol', molecules, {foot:savedFoot})),
+  notes:[
+    '<b>Opening it:</b> the ⚙ Settings button on every generator page (dashed outline), and "Settings" in the Account ▾ menu. From a generator page it opens straight to that generator\'s section; from Account it opens to Molecules.',
+    '<b>Closing it:</b> ✕, the Esc key, or clicking the dimmed page. The page behind stays where it was, so a student mid-session doesn\'t lose their place.',
+    '<b>Saves automatically</b>, like the Claude app: no Save button. Changes take effect on the next problem, never the one on screen.',
+    '<b>Course preset</b> is the one-click "Semester 1 / Semester 2" idea from the IUPAC vision, moved up so it sets every generator at once.',
+    '<b>Open question:</b> stereochemistry sits here because it affects all generators, but the IUPAC vision lists it as undecided for the MVP. It could start hidden.',
+  ]
+},
+{
+  title:'2 · IUPAC naming: default view',
+  html: page(sitePage('IUPAC naming'), modal('iupac', iupac({}), {foot:savedFoot})),
+  notes:[
+    '<b>Follow or override:</b> each generator starts on "Use the shared Molecules settings" with a one-line summary. Most students never need more.',
+    '<b>Core first, Advanced collapsed:</b> matches the IUPAC vision (parent type and allowed groups up front; chain length, senior group and counts under Advanced).',
+    '<b>Secondary groups</b> are picked only from groups allowed under Molecule options, so the two lists can\'t contradict each other.',
+  ]
+},
+{
+  title:'3 · IUPAC naming: Advanced open, settings conflict',
+  html: page(sitePage('IUPAC naming'), modal('iupac', iupac({custom:false, adv:true, bad:true}), {warn:'iupac', foot:savedFoot})),
+  notes:[
+    '<b>Validation:</b> impossible combinations get a summary banner with suggestions, plus an inline message under each bad field. The nav item gets a "!" so the problem is visible from any section.',
+    '<b>No silent breakage:</b> while a conflict exists the generator keeps using the last valid settings, and closing the window shows "Your last working settings are still in use".',
+    '<b>Quick fixes</b> such as "Allow it" fix the conflict in one click.',
+    'In the real window this content scrolls; the board shows it cropped.',
+  ]
+},
+{
+  title:'4 · IUPAC naming: "Customize for IUPAC naming only" selected',
+  html: page(sitePage('IUPAC naming'), modal('iupac', iupac({custom:true}), {foot:savedFoot})),
+  notes:[
+    '<b>Override expands inline:</b> a copy of the shared options appears, prefilled with the shared values, so the student edits rather than starts from scratch.',
+    'Switching back to "Use the shared Molecules settings" discards the override (with an Undo toast).',
+  ]
+},
+{
+  title:'5 · Synthesis',
+  html: page(sitePage('Synthesis'), modal('syn', synthesis, {foot:savedFoot})),
+  notes:[
+    '<b>Example of a customized generator:</b> Synthesis overrides molecule sizes (small starting materials, larger target), which wouldn\'t suit IUPAC naming.',
+    '<b>Reactions allowed</b> also filters the reagent list in the generator, so students only see reagents for reactions they\'ve covered.',
+    'Exact Synthesis settings belong to that generator\'s own project; these are placeholders showing how its section fits the frame.',
+  ]
+},
+{
+  title:'6 · Acid/Base (coming soon)',
+  html: page(sitePage('IUPAC naming'), modal('ab', acidbase, {})),
+  notes:[
+    '<b>Same treatment as the Practice Problems menu:</b> "Coming soon" generators are listed but greyed, so students can see what\'s planned.',
+    'Alternative: leave unreleased generators out of Settings entirely. Simpler, but loses the preview.',
+  ]
+},
+{
+  title:'7 · First visit to a generator',
+  html: page(sitePage('IUPAC naming'), modal('iupac', firstVisit, {foot:firstFoot})),
+  notes:[
+    '<b>From the IUPAC vision:</b> on a student\'s first visit, settings open immediately so they choose what to practice before the first problem.',
+    '<b>Same window, lighter content:</b> just course + the generator\'s core settings, with one clear "Start practicing" button. ✕ or "Use defaults" starts with Semester 1.',
+    'Each generator shows this once; afterwards Settings opens normally.',
+  ]
+},
+];
+
+const root = document.getElementById('boards');
+root.style.cssText = 'display:flex;flex-direction:column;gap:56px';
+screens.forEach(s=>{
+  const b = document.createElement('section'); b.className='board';
+  b.innerHTML = `<h2>${s.title} · Laptop 1440</h2><div class="scaler"><div class="frame">${s.html}</div></div><ul class="notes">${s.notes.map(n=>`<li>${n}</li>`).join('')}</ul>`;
+  root.appendChild(b);
+});
+// phone board
+const pb = document.createElement('section'); pb.className='board';
+pb.innerHTML = `<h2>8 · Phone 375: full-screen sheet, list then section</h2><div class="scaler"><div class="frame"><div class="phones">
+  <div class="phcol">${phoneList}<span class="phcap">Settings opened: section list</span></div>
+  <div class="phcol">${phoneSec}<span class="phcap">Tapped IUPAC naming</span></div>
+  <div style="max-width:300px;font-size:14px;color:#555;line-height:1.5;padding-top:40px">On phones there's no room for a dimmed page behind a window, so Settings becomes a full-screen sheet that slides up. The left column becomes a list; tapping a section slides in its page with a ‹ back arrow. Desktop-only generators (Synthesis) stay listed but are labeled, since a phone user can still set them up for later.<br><br><b>Tablet 820:</b> same as laptop, with the window filling most of the screen and the section list narrowed to about 200px.</div>
+</div></div></div><ul class="notes"><li><b>Same content, different container:</b> sections, rows and validation are identical to the laptop window.</li></ul>`;
+root.appendChild(pb);
+
+function fit(){
+  document.querySelectorAll('.scaler').forEach(sc=>{
+    const f = sc.firstElementChild, k = Math.min(1, sc.clientWidth/1440);
+    f.style.transform = `scale(${k})`; sc.style.height = (f.offsetHeight*k)+'px';
+  });
+}
+addEventListener('resize', fit); addEventListener('load', fit); fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<title>Synthesis Generator Wireframes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: stacked wireframe boards on a neutral board; frames stay a white page canvas in both themes */
+:root{--board:#f3f3f1;--ink:#1f1f1e;--muted:#4b4b49;--soft:#6b6b68;--shadow:rgba(0,0,0,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--board:#1c1c1b;--ink:#ececea;--muted:#bdbdb9;--soft:#9a9a96;--shadow:rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{--board:#1c1c1b;--ink:#ececea;--muted:#bdbdb9;--soft:#9a9a96;--shadow:rgba(0,0,0,.5);color-scheme:dark}
+html{font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{background:var(--board);color:var(--ink);margin:0;padding-block:48px;padding-left:max(48px, env(safe-area-inset-left, 0px));padding-right:max(48px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:56px}
+@media (max-width:700px){body{padding-block:24px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}}
+.intro{max-width:880px}
+.intro h1{margin:0 0 8px;font-size:22px}
+.intro p{margin:0 0 6px;color:var(--muted)}
+.board h2{margin:0 0 12px;font-size:13px;font-weight:500;color:var(--soft)}
+.scaler{width:100%;max-width:1440px;overflow:hidden}
+.frame{width:1440px;transform-origin:0 0;background:#fff;color:#333;box-shadow:0 1px 3px var(--shadow)}
+.notes{max-width:1100px;margin:14px 0 0;padding:0 0 0 18px;color:var(--muted);font-size:13px}
+.notes li{margin:3px 0}
+.notes b{color:var(--ink);font-weight:600}
+
+/* ---- wireframe page (matches site wireframes) ---- */
+#boards .page{color:#333;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;display:flex;flex-direction:column}
+#boards .page a{color:#333}
+#boards .hdr{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 160px;border-bottom:1px solid #d4d4d4}
+#boards .logo{width:112px;height:28px;background:#dcdcdc;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.06em;color:#555}
+#boards .nav{display:flex;gap:28px;align-items:center}
+#boards .nav span{text-decoration:underline;text-underline-offset:3px}
+#boards .body{padding:40px 160px 56px;display:flex;flex-direction:column;gap:20px}
+#boards .crumb{font-size:13px;color:#555}
+#boards .h1{margin:0;font-size:44px;line-height:52px;font-weight:700}
+#boards .ftr{display:flex;justify-content:space-between;padding:24px 160px;border-top:1px solid #d4d4d4;font-size:14px}
+#boards .ftr .l{font-size:13px;color:#555}
+#boards .ftr .r{display:flex;gap:20px}
+#boards .ftr .r span{text-decoration:underline;text-underline-offset:3px}
+/* ---- generator ---- */
+#boards .gen{display:grid;grid-template-columns:248px 1fr;gap:24px;align-items:start}
+#boards .side{border:1px solid #bdbdbd;border-radius:4px;padding:16px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+#boards .side h3{margin:0 0 6px;font-size:15px}
+#boards .side .grp{margin-top:10px;font-weight:600;color:#333}
+#boards .side .it{padding:5px 8px;border-radius:3px;color:#444;display:flex;align-items:center;gap:8px;justify-content:space-between}
+#boards .side .it.sub{padding-left:20px}
+#boards .side .it.sub2{padding-left:32px}
+#boards .side .it.sel{background:#333;color:#fff}
+#boards .side .it.bad{outline:1.5px solid #333;background:#fff}
+#boards .side .it .rx{font-size:13px}
+#boards .side .fx{display:flex;align-items:center;gap:6px;color:#555;margin-bottom:4px}
+#boards .box{width:13px;height:13px;border:1.5px solid #555;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;line-height:1}
+#boards .search{height:32px;border:1px solid #bdbdbd;border-radius:3px;display:flex;align-items:center;padding:0 10px;color:#888;margin-bottom:6px}
+#boards .more{margin-top:12px;padding-top:10px;border-top:1px solid #e0e0e0;text-decoration:underline;text-underline-offset:3px;color:#444}
+#boards .main{display:flex;flex-direction:column;gap:16px;min-width:0}
+#boards .stepper{display:flex;align-items:center;gap:12px;font-size:14px;color:#888}
+#boards .stepper .s{display:flex;align-items:center;gap:8px}
+#boards .stepper .n{width:22px;height:22px;border-radius:50%;border:1.5px solid #aaa;display:flex;align-items:center;justify-content:center;font-size:12px}
+#boards .stepper .s.on{color:#222;font-weight:600}
+#boards .stepper .s.on .n{background:#333;border-color:#333;color:#fff}
+#boards .stepper .s.done .n{background:#bbb;border-color:#bbb;color:#fff}
+#boards .stepper .ln{width:40px;height:1px;background:#bbb}
+#boards .stepper .sp{flex:1}
+#boards .stepper .lnk{color:#444;text-decoration:underline;text-underline-offset:3px;font-weight:400}
+#boards .ov{border:1px solid #bdbdbd;border-radius:4px;display:grid;grid-template-columns:190px 1fr}
+#boards .ov .cell{padding:12px 14px;border-bottom:1px solid #e3e3e3;display:flex;flex-direction:column;gap:6px;min-height:84px}
+#boards .ov .cell:nth-child(odd){border-right:1px solid #e3e3e3}
+#boards .ov .cell.full{grid-column:1/-1;border-right:0}
+#boards .ov .cell.last{border-bottom:0}
+#boards .lbl{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.05em}
+#boards .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#boards .chip{display:inline-flex;align-items:center;justify-content:center;padding:2px;border-radius:4px}
+#boards .chip.sm{background:#e2e2e2}
+#boards .chip.cur{outline:1.5px dashed #333;outline-offset:2px}
+#boards .chip.tgt{outline:2px solid #333;outline-offset:2px;border-radius:50%}
+#boards .empty{font-size:13px;color:#888;font-style:italic}
+#boards .ar{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#555;gap:1px;min-width:46px}
+#boards .ws{border:1px solid #bdbdbd;border-radius:4px;padding:16px 20px 20px;min-height:330px;display:flex;flex-direction:column;gap:12px;position:relative}
+#boards .stage{flex:1;display:flex;align-items:center;justify-content:center;gap:32px;min-height:220px}
+#boards .stack{display:flex;flex-direction:column;align-items:center;gap:6px}
+#boards .plus{font-size:26px;color:#555}
+#boards .big-ar{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px;color:#333;min-width:120px}
+#boards .preview{border:1.5px dashed #aaa;border-radius:6px;padding:10px;opacity:.55}
+#boards .opt{border:1.5px solid #bbb;border-radius:6px;padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px;align-items:center}
+#boards .opt.sel{border:2px solid #333}
+#boards .opt .t{font-size:13px;display:flex;gap:6px;align-items:center;align-self:flex-start}
+#boards .radio{width:13px;height:13px;border-radius:50%;border:1.5px solid #555;display:inline-block;box-sizing:border-box}
+#boards .opt.sel .radio{border:4px solid #333}
+#boards .or{font-size:13px;color:#666;font-weight:600}
+#boards .instr{font-size:14px;color:#444}
+#boards .btns{display:flex;gap:10px;align-items:center}
+#boards .btn{height:40px;padding:0 18px;border-radius:4px;display:inline-flex;align-items:center;font-size:14px;border:1px solid #888;color:#333;background:#fff}
+#boards .btn.pri{background:#333;border-color:#333;color:#fff}
+#boards .btn.dis{opacity:.4}
+#boards .callout{border:1px solid #bdbdbd;background:#f2f2f2;border-radius:4px;padding:12px 14px;font-size:14px;max-width:340px}
+#boards .callout b{display:block;margin-bottom:4px}
+#boards .banner{border:1px solid #bdbdbd;background:#f2f2f2;border-radius:4px;padding:16px 18px;font-size:15px}
+#boards .banner b{font-size:20px;display:block;margin-bottom:4px}
+#boards .verdict{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+#boards .mark{width:22px;height:22px;border-radius:50%;border:2px solid #333;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+#boards .mark.x{background:#333;color:#fff}
+#boards .qslot{width:150px;height:120px;border:1.5px dashed #aaa;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#aaa}
+#boards .complete{font-size:40px;font-weight:700;text-align:center;margin:4px 0}
+/* ---- phone page (matches site phone wireframes) ---- */
+#phone-boards .ph{width:375px;height:812px;position:relative;overflow:hidden;display:flex;flex-direction:column;font-size:15px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+#phone-boards .hdr{flex:0 0 56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #d4d4d4}
+#phone-boards .logo{width:112px;height:28px;background:#dcdcdc;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.06em;color:#555}
+#phone-boards .burger{width:44px;height:44px;border:1px solid #b5b5b5;border-radius:4px;display:flex;align-items:center;justify-content:center}
+#phone-boards .content{flex:1;display:flex;flex-direction:column;gap:12px;padding:14px 16px 0;min-height:0}
+#phone-boards .ttl{display:flex;align-items:flex-end;justify-content:space-between}
+#phone-boards .crumb{font-size:13px;color:#555}
+#phone-boards .h1{margin:2px 0 0;font-size:26px;line-height:32px;font-weight:700}
+#phone-boards .more{width:36px;height:36px;border:1px solid #b5b5b5;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;letter-spacing:1px;color:#444}
+#phone-boards .prog{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#555}
+#phone-boards .prog b{color:#222}
+#phone-boards .bar{height:4px;background:#e2e2e2;border-radius:2px;overflow:hidden}
+#phone-boards .bar i{display:block;height:100%;background:#333}
+#phone-boards .plan{border:1px solid #bdbdbd;border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+#phone-boards .plan .top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.05em}
+#phone-boards .plan .top span:last-child{text-transform:none;letter-spacing:0;color:#333;text-decoration:underline;text-underline-offset:3px;font-size:13px}
+#phone-boards .strip{display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+#phone-boards .counts{display:flex;gap:12px;font-size:12px;color:#555}
+#phone-boards .lbl{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.05em}
+#phone-boards .ws{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:0;padding-top:4px}
+#phone-boards .ws .lbl{align-self:flex-start}
+#phone-boards .instr{font-size:14px;color:#444;align-self:stretch}
+#phone-boards .bottom{flex:0 0 auto;border-top:1px solid #d4d4d4;padding:12px 16px 20px;display:flex;flex-direction:column;gap:10px;background:#fff}
+#phone-boards .picker{height:44px;border:1px solid #888;border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:14px}
+#phone-boards .picker small{display:block;font-size:11px;color:#777;line-height:1.1}
+#phone-boards .btn{height:44px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;border:1px solid #888;color:#333;background:#fff}
+#phone-boards .btn.pri{background:#333;border-color:#333;color:#fff}
+#phone-boards .btn.dis{opacity:.4}
+#phone-boards .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#phone-boards .chip{display:inline-flex;align-items:center;justify-content:center;padding:2px;border-radius:4px;flex:0 0 auto}
+#phone-boards .chip.sm{background:#e2e2e2}
+#phone-boards .chip.cur{outline:1.5px dashed #333;outline-offset:1px}
+#phone-boards .chip.tgt{outline:2px solid #333;outline-offset:2px;border-radius:50%}
+#phone-boards .ar{display:inline-flex;flex-direction:column;align-items:center;font-size:10px;color:#555;flex:0 0 auto}
+#phone-boards .down{display:flex;align-items:center;gap:8px;font-size:13px;color:#333}
+#phone-boards .preview{border:1.5px dashed #aaa;border-radius:6px;padding:4px 8px;opacity:.55}
+#phone-boards .pair{display:flex;align-items:center;gap:10px}
+#phone-boards .plus{font-size:22px;color:#555}
+#phone-boards .opt{width:100%;border:1.5px solid #bbb;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:10px}
+#phone-boards .opt.sel{border:2px solid #333}
+#phone-boards .opt .t{font-size:13px;display:flex;gap:6px;align-items:center;width:78px}
+#phone-boards .radio{width:14px;height:14px;border-radius:50%;border:1.5px solid #555;box-sizing:border-box;flex:0 0 auto}
+#phone-boards .opt.sel .radio{border:4px solid #333}
+#phone-boards .verdict{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+#phone-boards .mark{width:20px;height:20px;border-radius:50%;border:2px solid #333;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+#phone-boards .mark.x{background:#333;color:#fff}
+#phone-boards .qslot{width:120px;height:90px;border:1.5px dashed #aaa;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#aaa}
+#phone-boards .banner{align-self:stretch;border:1px solid #bdbdbd;background:#f2f2f2;border-radius:4px;padding:12px 14px;font-size:14px}
+#phone-boards .banner b{font-size:17px;display:block;margin-bottom:2px}
+#phone-boards .complete{font-size:28px;font-weight:700;text-align:center}
+#phone-boards .callout{align-self:stretch;border:1px solid #bdbdbd;background:#f2f2f2;border-radius:4px;padding:10px 12px;font-size:13px}
+/* bottom sheet */
+#phone-boards .scrim{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+#phone-boards .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden}
+#phone-boards .grab{width:40px;height:4px;border-radius:2px;background:#ccc;margin:8px auto 4px}
+#phone-boards .sh-h{display:flex;justify-content:space-between;align-items:center;padding:6px 16px 10px;border-bottom:1px solid #e3e3e3}
+#phone-boards .sh-h b{font-size:17px}
+#phone-boards .sh-h span{font-size:20px;color:#555}
+#phone-boards .sh-b{padding:8px 16px 0;display:flex;flex-direction:column;gap:2px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 88%,transparent);mask-image:linear-gradient(#000 88%,transparent)}
+#phone-boards .grp{margin-top:10px;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.05em}
+#phone-boards .it{min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-bottom:1px solid #eee;font-size:15px}
+#phone-boards .it.sel{background:#333;color:#fff;border-radius:4px;border-color:transparent}
+#phone-boards .fx{display:flex;align-items:center;gap:8px;font-size:13px;color:#555;padding:4px 0}
+#phone-boards .toggle{width:34px;height:20px;border-radius:10px;background:#333;position:relative;flex:0 0 auto}
+#phone-boards .toggle::after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+#phone-boards .search{height:40px;border:1px solid #bdbdbd;border-radius:4px;display:flex;align-items:center;padding:0 12px;color:#888;font-size:14px}
+#phone-boards .ctx{display:flex;align-items:center;gap:6px;padding:8px 0;font-size:13px;color:#555}
+#phone-boards .tree{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 0 0 4px}
+#phone-boards .tree .stepl{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;padding-left:14px}
+#phone-boards .sec{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid #eee}
+#phone-boards .sec .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#phone-boards .empty{font-size:13px;color:#888;font-style:italic}
+#phone-boards{display:flex;flex-wrap:wrap;gap:48px 40px;align-items:flex-start}
+#phone-boards .board{width:375px;max-width:100%;display:flex;flex-direction:column}
+#phone-boards .board h2{min-height:36px}
+#phone-boards .scaler{max-width:375px}
+#phone-boards .frame{width:375px}
+.section-head{max-width:880px;display:flex;flex-direction:column;gap:6px;padding-top:24px;border-top:1px solid var(--soft)}
+.section-head h2{margin:0;font-size:20px;text-wrap:balance}
+.section-head p{margin:0;color:var(--muted)}
+
+</style>
+<div class="intro">
+  <h1>Synthesis generator · lo-fi wireframes</h1>
+  <p>Built from the hand-drawn UI idea, in the same style as the site wireframes. Laptop 1440 screens come first, followed by a phone 375 version of the same flow.</p>
+  <p>Example problem used throughout: 3-methylhexane, made from acetone, acetaldehyde and bromoethane (aldol → hydrogenation → Wittig → hydrogenation).</p>
+</div>
+<div id="boards"></div>
+<div class="section-head" id="phone">
+  <h2>Phone 375</h2>
+  <p>The same flow fitted to a 375px phone. The sidebar lists move into bottom sheets, the plan overview collapses into a strip you can expand, and each step stacks vertically with the arrow pointing down. Frames show the first screen (375 × 812); the site footer sits below the fold.</p>
+</div>
+<div id="phone-boards"></div>
+
+<script>
+// ---------- molecule drawing (skeletal, lo-fi) ----------
+const H = 0.866;
+const M = {
+  T:   {atoms:[[0,0],[H,-.5],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2],[2,3],[2,4],[4,5],[5,6]]},
+  A1:  {atoms:[[0,0],[H,-.5],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2,2],[2,3],[2,4],[4,5],[5,6]]},
+  K1:  {atoms:[[H,-.5,'O'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1,2],[1,2],[1,3],[3,4],[4,5]]},
+  E1:  {atoms:[[H,-.5,'O'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1,2],[1,2],[1,3],[3,4,2],[4,5]]},
+  BrF: {atoms:[[H,-.5,'Br'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2],[1,3],[3,4],[4,5]]},
+  EtBr:{atoms:[[0,0],[H,-.5],[2*H,0,'Br']], bonds:[[0,1],[1,2]]},
+  Ac:  {atoms:[[H,0],[H,-1,'O'],[0,.5],[2*H,.5]], bonds:[[0,1,2],[0,2],[0,3]]},
+  Ald: {atoms:[[0,0,'O'],[H,.5],[2*H,0]], bonds:[[0,1,2],[1,2]]},
+};
+function mol(key, s=26, hl=[]) {
+  const d = M[key], pad = s*0.55;
+  const xs = d.atoms.map(a=>a[0]), ys = d.atoms.map(a=>a[1]);
+  const minx=Math.min(...xs), miny=Math.min(...ys);
+  const w=(Math.max(...xs)-minx)*s+pad*2, h=(Math.max(...ys)-miny)*s+pad*2;
+  const P = a => [(a[0]-minx)*s+pad, (a[1]-miny)*s+pad];
+  const sw = Math.max(1.3, s/14);
+  let g = '';
+  hl.forEach(bi=>{ const [i,j]=d.bonds[bi]; const [x1,y1]=P(d.atoms[i]),[x2,y2]=P(d.atoms[j]);
+    g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#cfcfcf" stroke-width="${s*0.45}" stroke-linecap="round"/>`; });
+  d.bonds.forEach(([i,j,o=1])=>{
+    let [x1,y1]=P(d.atoms[i]),[x2,y2]=P(d.atoms[j]);
+    const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L, cut=s*0.32;
+    if(d.atoms[i][2]){x1+=ux*cut;y1+=uy*cut} if(d.atoms[j][2]){x2-=ux*cut;y2-=uy*cut}
+    const ln=(a,b,c,e)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="#222" stroke-width="${sw}" stroke-linecap="round"/>`;
+    if(o===2){ const off=Math.max(2.2,s*0.11), nx=-uy*off, ny=ux*off; g+=ln(x1+nx,y1+ny,x2+nx,y2+ny)+ln(x1-nx,y1-ny,x2-nx,y2-ny); }
+    else g+=ln(x1,y1,x2,y2);
+  });
+  d.atoms.forEach(a=>{ if(a[2]){ const [x,y]=P(a); g+=`<text x="${x}" y="${y}" font-size="${s*0.62}" text-anchor="middle" dominant-baseline="central" fill="#222" font-family="system-ui,sans-serif">${a[2]}</text>`; }});
+  return `<svg width="${w.toFixed(0)}" height="${h.toFixed(0)}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${g}</svg>`;
+}
+const chip = (k, s=13, cls='') => `<span class="chip ${cls}">${mol(k,s)}</span>`;
+const retroAr = (lbl='') => `<span class="ar"><svg width="40" height="12" viewBox="0 0 40 12"><path d="M2 4H34M2 8H34M30 1L37 6L30 11" fill="none" stroke="#555" stroke-width="1.3"/></svg>${lbl}</span>`;
+const fwdAr = (lbl='') => `<span class="ar">${lbl||'&nbsp;'}<svg width="40" height="10" viewBox="0 0 40 10"><path d="M2 5H36M31 1L37 5L31 9" fill="none" stroke="#555" stroke-width="1.3"/></svg></span>`;
+const bigRetro = (lbl='') => `<span class="big-ar">${lbl||'&nbsp;'}<svg width="110" height="18" viewBox="0 0 110 18"><path d="M2 6H100M2 12H100M94 2L106 9L94 16" fill="none" stroke="#333" stroke-width="1.6"/></svg>&nbsp;</span>`;
+const bigFwd = (lbl='', extra='') => `<span class="big-ar">${lbl||'&nbsp;'}<svg width="120" height="14" viewBox="0 0 120 14"><path d="M2 7H114M107 2L116 7L107 12" fill="none" stroke="#333" stroke-width="1.6"/></svg>${extra||'&nbsp;'}</span>`;
+const stackOf = (...ks) => `<span class="stack">${ks.join('<span class="plus">+</span>')}</span>`;
+
+// ---------- synthesis plan mini-map states ----------
+const plan = {
+  p0: () => chip('T'),
+  p1: (cur) => `${chip('T')}${retroAr('FGA: alkene')}${chip('A1',13,cur?'cur':'')}`,
+  p2: (cur) => `${chip('T')}${retroAr('FGA: alkene')}${chip('A1')}${retroAr('Wittig')}${stackOf(chip('EtBr',13,'sm'),chip('K1',13,cur?'cur':''))}`,
+  p3: (curIdx=-1) => {
+    const c = i => curIdx===i ? 'cur' : '';
+    return `${chip('T')}${retroAr('FGA: alkene')}<span class="chip ${c(3)}">${mol('A1',13)}</span>${retroAr('Wittig')}<span class="chip ${c(2)}">${stackOf(chip('EtBr',13,'sm'),chip('K1',13))}</span>${retroAr('FGA: alkene')}<span class="chip ${c(1)}">${chip('E1')}</span>${retroAr('Aldol')}<span class="chip ${c(0)}">${stackOf(chip('Ac',13,'sm'),chip('Ald',13,'sm'))}</span>`;
+  }
+};
+const fwdChain = n => {
+  const steps = [
+    stackOf(chip('Ac',13),chip('Ald',13)),
+    fwdAr('Δ')+chip('E1'),
+    fwdAr('H₂, Pd/C')+stackOf(chip('EtBr',13),chip('K1')),
+    fwdAr('PPh₃; BuLi')+chip('A1'),
+    fwdAr('H₂, Pd/C')+chip('T',13,'tgt'),
+  ];
+  return steps.slice(0,n+1).join('');
+};
+
+// ---------- sidebars ----------
+function discList(sel, {onlyApplicable=true}={}) {
+  const it = (t, key, lvl='sub') => `<div class="it ${lvl} ${sel===key?'sel':''}">${t}</div>`;
+  return `<div class="side">
+    <h3>Disconnections</h3>
+    <div class="fx"><span class="box">${onlyApplicable?'✓':''}</span>Only show ones that fit the hovered bond</div>
+    <div class="grp">FGI</div>
+    ${it('R–OH → R–X','fgi1')}${it('R–X → R–OH','fgi2')}${it('Alkene → alkane','fgi3')}
+    <div class="grp">Oxidation</div>${it('R–OH → R=O','ox')}
+    <div class="grp">Reduction</div>${it('R=O → R–OH','red')}
+    <div class="grp">FGA</div>${it('R–R → R=R','fga')}${it('R–R → R–C=O','fga2')}
+    <div class="grp">Special reactions</div>${it('Diels–Alder','da')}${it('Wittig','wittig')}
+    <div class="grp">C–X disconnection</div>${it('One group','cx1')}${it('Two group: 1,1 · 1,2 · 1,3','cx2')}
+    <div class="grp">C–C disconnection</div>${it('One group','cc1')}${it('Two group: 1,1 · 1,2 · 1,3','cc2')}${it('Aldol condensation','aldol')}${it('Claisen','claisen')}
+    <div class="more">More disconnections →</div>
+  </div>`;
+}
+function reagentList(sel, bad) {
+  const it = (t,key) => `<div class="it sub ${sel===key?'sel':''} ${bad===key?'bad':''}">${t}${bad===key?'<span class="rx">✕</span>':''}</div>`;
+  return `<div class="side">
+    <h3>Reagents &amp; conditions</h3>
+    <div class="search">Search reagents</div>
+    <div class="grp">Conditions</div>${it('Heat (Δ)','heat')}${it('Dean–Stark trap (removes water)','ds')}${it('H₃O⁺','acid')}${it('NaOH','base')}
+    <div class="grp">Reducing agents</div>${it('H₂, Pd/C','h2')}${it('NaBH₄','nabh4')}${it('LiAlH₄','lah')}
+    <div class="grp">Oxidizing agents</div>${it('PCC','pcc')}${it('KMnO₄','kmno4')}
+    <div class="grp">Phosphorus reagents</div>${it('PPh₃, then n-BuLi','pph3')}
+    <div class="grp">Organometallics</div>${it('Mg, ether','mg')}${it('R–Li','rli')}
+    <div class="more">Full list (from MOC reagent list) ↓</div>
+  </div>`;
+}
+
+// ---------- page shell ----------
+function stepper(n){
+  const s = (i,t) => `<span class="s ${i===n?'on':(i<n?'done':'')}"><span class="n">${i<n?'✓':i}</span>${t}</span>`;
+  return `<div class="stepper">${s(1,'Retrosynthesis')}<span class="ln"></span>${s(2,'Forward synthesis')}<span class="sp"></span><span class="lnk">Restart</span><span class="lnk">New problem</span></div>`;
+}
+function overview({planHTML, inter, sm, fwd}) {
+  return `<div class="ov">
+    <div class="cell"><span class="lbl">Target</span>${chip('T',16)}</div>
+    <div class="cell"><span class="lbl">Synthesis plan</span><div class="row">${planHTML}</div></div>
+    <div class="cell ${fwd===undefined?'last':''}"><span class="lbl">Intermediates (to do)</span><div class="row">${inter||'<span class="empty">None</span>'}</div></div>
+    <div class="cell ${fwd===undefined?'last':''}"><span class="lbl">Starting materials</span><div class="row">${sm||'<span class="empty">None yet</span>'}</div></div>
+    ${fwd!==undefined?`<div class="cell full last"><span class="lbl">Forward synthesis</span><div class="row">${fwd}</div></div>`:''}
+  </div>`;
+}
+function page(side, mainHTML){
+  return `<div class="page">
+    <div class="hdr"><span class="logo">LOGO</span><span class="nav"><span>Practice Problems ⌄</span><span>Lectures</span><span>Account</span></span></div>
+    <div class="body">
+      <div><div class="crumb">Practice Problems › Synthesis</div><h1 class="h1">Synthesis</h1></div>
+      <div class="gen">${side}<div class="main">${mainHTML}</div></div>
+    </div>
+    <div class="ftr"><span class="l">© Orgo Helper</span><span class="r"><span>About</span><span>Privacy</span><span>Terms</span><span>Contact</span></span></div>
+  </div>`;
+}
+
+// ---------- screens ----------
+const SM3 = `${chip('EtBr',13,'sm')}${chip('Ac',13,'sm')}${chip('Ald',13,'sm')}`;
+const screens = [
+{
+  title:'1 · Retrosynthesis: pick a disconnection',
+  html: page(discList('fga'), `${stepper(1)}
+    ${overview({planHTML:plan.p0()})}
+    <div class="ws"><span class="lbl">Target / intermediate molecule</span>
+      <div class="stage">${mol('T',46,[1])}${bigRetro('FGA: alkene')}<span class="preview">${mol('A1',46)}</span></div>
+      <div class="instr">Pick a disconnection from the list, then click the bond to apply it to.</div>
+      <div class="btns"><span class="btn pri">Apply disconnection</span><span class="btn">Clear</span></div>
+    </div>`),
+  notes:[
+    '<b>Selection order:</b> choose an FGI/FGA/disconnection first, then click a bond. The app only lets the student apply it when it\'s valid.',
+    '<b>Only show what fits:</b> the checkbox filters the list to disconnections that apply to the bond being hovered.',
+    '<b>Preview:</b> the dashed molecule on the right is the result; once approved it moves into the plan above.',
+  ]
+},
+{
+  title:'2 · Retrosynthesis: choose polarity',
+  html: page(discList('wittig'), `${stepper(1)}
+    ${overview({planHTML:plan.p1(true)})}
+    <div class="ws"><span class="lbl">Target / intermediate molecule</span>
+      <div class="stage">${mol('A1',42,[1])}${bigRetro('Wittig')}
+        <span class="stack" style="gap:10px">
+          <span class="opt sel"><span class="t"><span class="radio"></span>Option A</span><span class="row" style="gap:12px">${chip('EtBr',24,'sm')}<span class="plus">+</span>${mol('K1',24)}</span></span>
+          <span class="or">OR</span>
+          <span class="opt"><span class="t"><span class="radio"></span>Option B</span><span class="row" style="gap:12px">${chip('Ald',24,'sm')}<span class="plus">+</span>${mol('BrF',24)}</span></span>
+        </span>
+      </div>
+      <div class="instr">Choose which way the bond breaks. Shaded molecules are starting materials (don't need to be made).</div>
+      <div class="btns"><span class="btn pri">Use this option</span><span class="btn">Back</span></div>
+    </div>`),
+  notes:[
+    '<b>Polarity choice:</b> student picks one of the two ways to split the bond.',
+    '<b>Shaded = starting material:</b> gray background marks purchasable molecules.',
+    '<b>After choosing:</b> new intermediates move up into the plan. If there are two, one loads into the workspace; the student can click the other in the plan to switch.',
+  ]
+},
+{
+  title:'3 · Retrosynthesis: next intermediate',
+  html: page(discList('fga'), `${stepper(1)}
+    ${overview({planHTML:plan.p2(true), inter:chip('K1',14), sm:chip('EtBr',13,'sm')})}
+    <div class="ws"><span class="lbl">Target / intermediate molecule</span>
+      <div class="stage">${mol('K1',46,[3])}${bigRetro('FGA: alkene')}<span class="preview">${mol('E1',46)}</span></div>
+      <div class="instr">Keep going until every intermediate is broken down into starting materials.</div>
+      <div class="btns"><span class="btn pri">Apply disconnection</span><span class="btn">Clear</span></div>
+    </div>`),
+  notes:[
+    '<b>Intermediates as a stack:</b> only shows intermediates that still need to be worked into the plan.',
+    '<b>Plan is a mini-map:</b> clicking any molecule in it reloads that step so the student can change it (dashed outline = step being worked on).',
+    '<b>"Core" list:</b> sidebar shows core disconnections to stress that most molecules use a core set; extras live behind "More disconnections".',
+    '<b>Open question from the sketch:</b> maybe don\'t show starting materials in the plan itself. Here they sit in their own row and appear small in the plan.',
+  ]
+},
+{
+  title:'4 · Retrosynthesis complete',
+  html: page(discList(''), `${stepper(1)}
+    ${overview({planHTML:plan.p3(), inter:'', sm:SM3})}
+    <div class="ws"><span class="lbl">Target / intermediate molecule</span>
+      <div class="stage" style="min-height:160px">${mol('E1',40,[3])}${bigRetro('Aldol')}${stackOf(chip('Ac',30,'sm'),chip('Ald',30,'sm'))}</div>
+      <div class="banner"><b>Retrosynthesis complete. Good job!</b>Next, forward synthesis: match each retrosynthetic step with the reagents or conditions needed to carry it out.</div>
+      <div class="btns"><span class="btn pri">Start forward synthesis →</span><span class="btn">Review plan</span></div>
+    </div>`),
+  notes:[
+    '<b>Finish condition:</b> the last intermediate breaks down into starting materials and no intermediates are left.',
+  ]
+},
+{
+  title:'5 · Forward synthesis: step without reagent choice',
+  html: page(reagentList(''), `${stepper(2)}
+    ${overview({planHTML:plan.p3(0), inter:'', sm:SM3, fwd:fwdChain(0)})}
+    <div class="ws"><span class="lbl">Current step</span>
+      <div class="stage">${stackOf(mol('Ac',38),mol('Ald',38))}${bigFwd('Δ')}${mol('E1',46)}
+        <span class="callout"><b>Note</b>This reaction can give the addition or the elimination product. To favor elimination, use heat (Δ).</span></div>
+      <div class="btns"><span class="btn pri">Next step →</span></div>
+    </div>`),
+  notes:[
+    '<b>Highlight the step:</b> the step being worked on is outlined in the plan.',
+    '<b>Reagent list:</b> sidebar swaps to reagents & conditions, intended to be the full MOC reagent list (needs search/grouping because it\'s long).',
+    '<b>Auto-proceed:</b> per the sketch, steps that need no reagent choice advance on their own but show a helpful note.',
+    '<b>Chemistry check:</b> an aldol condensation normally needs base (e.g. NaOH), so this may work better as a normal reagent step.',
+  ]
+},
+{
+  title:'6 · Forward synthesis: correct reagent',
+  html: page(reagentList('h2'), `${stepper(2)}
+    ${overview({planHTML:plan.p3(1), inter:'', sm:SM3, fwd:fwdChain(1)})}
+    <div class="ws"><span class="lbl">Current step</span>
+      <div class="stage">${mol('E1',46)}${bigFwd('H₂, Pd/C', '<span class="verdict"><span class="mark">✓</span>Correct</span>')}${mol('K1',46)}</div>
+      <div class="instr">Pick the reagent or conditions for this step from the list.</div>
+      <div class="btns"><span class="btn pri">Next step →</span></div>
+    </div>`),
+  notes:[
+    '<b>Reagent goes on the arrow:</b> selected reagent is written above the arrow and added to the forward synthesis row.',
+  ]
+},
+{
+  title:'7 · Forward synthesis: wrong reagent',
+  html: page(reagentList('', 'h2'), `${stepper(2)}
+    ${overview({planHTML:plan.p3(2), inter:'', sm:SM3, fwd:fwdChain(2)})}
+    <div class="ws"><span class="lbl">Current step</span>
+      <div class="stage">${stackOf(mol('K1',42),mol('EtBr',36))}${bigFwd('H₂, Pd/C', '<span class="verdict"><span class="mark x">✕</span>Not this one, try again</span>')}<span class="preview">${mol('A1',46)}</span></div>
+      <div class="instr">Pick the reagent or conditions for this step from the list.</div>
+      <div class="btns"><span class="btn pri dis">Next step →</span></div>
+    </div>`),
+  notes:[
+    '<b>Immediate feedback:</b> a wrong reagent gets an ✕ right away (red in hi-fi), and it\'s marked in the list.',
+    '<b>Product is always shown:</b> the intended product (the molecule before the Wittig step in the plan) stays visible, dashed until the correct reagent is picked.',
+  ]
+},
+{
+  title:'8 · Forward synthesis: correct reagent (Wittig)',
+  html: page(reagentList('pph3'), `${stepper(2)}
+    ${overview({planHTML:plan.p3(2), inter:'', sm:SM3, fwd:fwdChain(3)})}
+    <div class="ws"><span class="lbl">Current step</span>
+      <div class="stage">${stackOf(mol('K1',42),mol('EtBr',36))}${bigFwd('PPh₃; n-BuLi', '<span class="verdict"><span class="mark">✓</span>Correct</span>')}${mol('A1',46)}</div>
+      <div class="instr">Pick the reagent or conditions for this step from the list.</div>
+      <div class="btns"><span class="btn pri">Next step →</span></div>
+    </div>`),
+  notes:[
+    '<b>Sketch had P(Ph)₃ under "Catalysts":</b> for a Wittig it\'s a reagent (PPh₃, then a strong base), so it\'s grouped under phosphorus reagents here.',
+  ]
+},
+{
+  title:'9 · Synthesis complete',
+  html: page(reagentList('h2'), `${stepper(3)}
+    ${overview({planHTML:plan.p3(), inter:'', sm:SM3, fwd:fwdChain(4)})}
+    <div class="ws"><span class="lbl">Current step</span>
+      <div class="stage" style="min-height:170px">${mol('A1',40)}${bigFwd('H₂, Pd/C', '<span class="verdict"><span class="mark">✓</span>Correct</span>')}<span class="chip tgt" style="padding:10px">${mol('T',40)}</span></div>
+      <div class="complete">Synthesis complete!</div>
+      <div class="btns" style="justify-content:center"><span class="btn pri">New synthesis</span><span class="btn">Restart this synthesis</span></div>
+    </div>`),
+  notes:[
+    '<b>Target circled:</b> the final product is circled at the end of the forward synthesis row.',
+    '<b>Two exits:</b> New synthesis (new problem) or Restart synthesis (same target, from the start).',
+  ]
+},
+];
+
+// ---------- render + scale to fit ----------
+const root = document.getElementById('boards');
+root.style.cssText = 'display:flex;flex-direction:column;gap:56px';
+screens.forEach(s=>{
+  const b = document.createElement('section'); b.className='board';
+  b.innerHTML = `<h2>${s.title} · Laptop 1440</h2><div class="scaler"><div class="frame">${s.html}</div></div><ul class="notes">${s.notes.map(n=>`<li>${n}</li>`).join('')}</ul>`;
+  root.appendChild(b);
+});
+function fit(){
+  document.querySelectorAll('#boards .scaler').forEach(sc=>{
+    const f = sc.firstElementChild, k = Math.min(1, sc.clientWidth/1440);
+    f.style.transform = `scale(${k})`; sc.style.height = (f.offsetHeight*k)+'px';
+  });
+}
+addEventListener('resize', fit); fit();
+</script>
+<script>
+(() => {
+
+// ---------- molecule drawing (skeletal, lo-fi) ----------
+const H = 0.866;
+const M = {
+  T:   {atoms:[[0,0],[H,-.5],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2],[2,3],[2,4],[4,5],[5,6]]},
+  A1:  {atoms:[[0,0],[H,-.5],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2,2],[2,3],[2,4],[4,5],[5,6]]},
+  K1:  {atoms:[[H,-.5,'O'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1,2],[1,2],[1,3],[3,4],[4,5]]},
+  E1:  {atoms:[[H,-.5,'O'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1,2],[1,2],[1,3],[3,4,2],[4,5]]},
+  BrF: {atoms:[[H,-.5,'Br'],[2*H,0],[3*H,-.5],[2*H,1],[3*H,1.5],[3*H,2.5]], bonds:[[0,1],[1,2],[1,3],[3,4],[4,5]]},
+  EtBr:{atoms:[[0,0],[H,-.5],[2*H,0,'Br']], bonds:[[0,1],[1,2]]},
+  Ac:  {atoms:[[H,0],[H,-1,'O'],[0,.5],[2*H,.5]], bonds:[[0,1,2],[0,2],[0,3]]},
+  Ald: {atoms:[[0,0,'O'],[H,.5],[2*H,0]], bonds:[[0,1,2],[1,2]]},
+};
+function mol(key, s=26, hl=[]) {
+  const d = M[key], pad = s*0.55;
+  const xs = d.atoms.map(a=>a[0]), ys = d.atoms.map(a=>a[1]);
+  const minx=Math.min(...xs), miny=Math.min(...ys);
+  const w=(Math.max(...xs)-minx)*s+pad*2, h=(Math.max(...ys)-miny)*s+pad*2;
+  const P = a => [(a[0]-minx)*s+pad, (a[1]-miny)*s+pad];
+  const sw = Math.max(1.3, s/14);
+  let g = '';
+  hl.forEach(bi=>{ const [i,j]=d.bonds[bi]; const [x1,y1]=P(d.atoms[i]),[x2,y2]=P(d.atoms[j]);
+    g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#cfcfcf" stroke-width="${s*0.45}" stroke-linecap="round"/>`; });
+  d.bonds.forEach(([i,j,o=1])=>{
+    let [x1,y1]=P(d.atoms[i]),[x2,y2]=P(d.atoms[j]);
+    const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L, cut=s*0.32;
+    if(d.atoms[i][2]){x1+=ux*cut;y1+=uy*cut} if(d.atoms[j][2]){x2-=ux*cut;y2-=uy*cut}
+    const ln=(a,b,c,e)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="#222" stroke-width="${sw}" stroke-linecap="round"/>`;
+    if(o===2){ const off=Math.max(2.2,s*0.11), nx=-uy*off, ny=ux*off; g+=ln(x1+nx,y1+ny,x2+nx,y2+ny)+ln(x1-nx,y1-ny,x2-nx,y2-ny); }
+    else g+=ln(x1,y1,x2,y2);
+  });
+  d.atoms.forEach(a=>{ if(a[2]){ const [x,y]=P(a); g+=`<text x="${x}" y="${y}" font-size="${s*0.62}" text-anchor="middle" dominant-baseline="central" fill="#222" font-family="system-ui,sans-serif">${a[2]}</text>`; }});
+  return `<svg width="${w.toFixed(0)}" height="${h.toFixed(0)}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${g}</svg>`;
+}
+const chip = (k, s=12, cls='') => `<span class="chip ${cls}">${mol(k,s)}</span>`;
+const rAr = (l='') => `<span class="ar"><svg width="30" height="10" viewBox="0 0 30 10"><path d="M1 3H25M1 7H25M22 1L28 5L22 9" fill="none" stroke="#555" stroke-width="1.2"/></svg>${l}</span>`;
+const fAr = (l='') => `<span class="ar">${l||'&nbsp;'}<svg width="30" height="8" viewBox="0 0 30 8"><path d="M1 4H27M23 1L28 4L23 7" fill="none" stroke="#555" stroke-width="1.2"/></svg></span>`;
+const downRetro = (l, extra='') => `<div class="down"><svg width="18" height="44" viewBox="0 0 18 44"><path d="M6 2V36M12 2V36M3 32L9 42L15 32" fill="none" stroke="#333" stroke-width="1.5"/></svg><span>${l}</span>${extra}</div>`;
+const downFwd = (l, extra='') => `<div class="down"><svg width="14" height="44" viewBox="0 0 14 44"><path d="M7 2V40M2 34L7 42L12 34" fill="none" stroke="#333" stroke-width="1.5"/></svg><span>${l}</span>${extra}</div>`;
+const pair = (...ks) => `<div class="pair">${ks.join('<span class="plus">+</span>')}</div>`;
+const st = (...ks) => `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">${ks.join('<span style="font-size:11px;color:#555">+</span>')}</span>`;
+
+// ---------- strips ----------
+const fullPlan = (cur=-1) => { const c=i=>cur===i?'cur':'';
+  return `${chip('T')}${rAr('FGA')}<span class="chip ${c(3)}">${mol('A1',12)}</span>${rAr('Wittig')}<span class="chip ${c(2)}">${st(chip('EtBr',10,'sm'),chip('K1',11))}</span>${rAr('FGA')}<span class="chip ${c(1)}">${mol('E1',12)}</span>${rAr('Aldol')}<span class="chip ${c(0)}">${st(chip('Ac',10,'sm'),chip('Ald',10,'sm'))}</span>`; };
+const fwdStrip = n => [st(chip('Ac',10),chip('Ald',10)), fAr('Δ')+chip('E1'), fAr('H₂')+st(chip('EtBr',10),chip('K1',11)), fAr('PPh₃')+chip('A1'), fAr('H₂')+chip('T',12,'tgt')].slice(0,n+1).join('');
+
+// ---------- shell ----------
+const icon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>`;
+function prog(stepNo, label, pct){ return `<div class="prog"><span>Step ${stepNo} of 2 · <b>${label}</b></span><div class="bar"><i style="width:${pct}%"></i></div></div>`; }
+function planBox(title, strip, counts){
+  return `<div class="plan"><div class="top"><span>${title}</span><span>Expand</span></div><div class="strip">${strip}</div>${counts?`<div class="counts">${counts}</div>`:''}</div>`;
+}
+function phone({progHTML, planHTML, ws, bottom='', overlay=''}){
+  return `<div class="ph">
+    <div class="hdr"><span class="logo">LOGO</span><span class="burger">${icon}</span></div>
+    <div class="content">
+      <div class="ttl"><div><div class="crumb">Practice Problems › Synthesis</div><h1 class="h1">Synthesis</h1></div><span class="more">···</span></div>
+      ${progHTML}${planHTML}
+      <div class="ws">${ws}</div>
+    </div>
+    ${bottom?`<div class="bottom">${bottom}</div>`:''}
+    ${overlay}
+  </div>`;
+}
+const picker = (cap, val) => `<div class="picker"><span><small>${cap}</small>${val}</span><span>▾</span></div>`;
+
+// ---------- screens ----------
+const retroPlan0 = planBox('Synthesis plan', chip('T'), 'Intermediates: 0 · Starting materials: 0');
+const retroPlan1 = planBox('Synthesis plan', `${chip('T')}${rAr('FGA')}${chip('A1',12,'cur')}`, 'Intermediates: 0 · Starting materials: 0');
+const retroPlan2 = planBox('Synthesis plan', `${chip('T')}${rAr('FGA')}${chip('A1')}${rAr('Wittig')}${st(chip('EtBr',10,'sm'),chip('K1',11,'cur'))}`, 'Intermediates: 1 · Starting materials: 1');
+const doneCounts = 'Intermediates: 0 · Starting materials: 3';
+
+const discSheet = `<div class="scrim"></div><div class="sheet" style="height:560px">
+  <div class="grab"></div><div class="sh-h"><b>Disconnections</b><span>✕</span></div>
+  <div class="sh-b">
+    <div class="fx"><span class="toggle"></span>Only show ones that fit the selected bond</div>
+    <div class="grp">FGA</div><div class="it sel">R–R → R=R</div><div class="it">R–R → R–C=O</div>
+    <div class="grp">FGI</div><div class="it">Alkene → alkane</div><div class="it">R–X → R–OH</div>
+    <div class="grp">Special reactions</div><div class="it">Wittig</div>
+    <div class="grp">C–C disconnection</div><div class="it">One group</div><div class="it">Aldol condensation</div>
+  </div></div>`;
+
+const planSheet = `<div class="scrim"></div><div class="sheet" style="height:640px">
+  <div class="grab"></div><div class="sh-h"><b>Synthesis plan</b><span>✕</span></div>
+  <div class="sh-b" style="-webkit-mask-image:none;mask-image:none;gap:0">
+    <div class="tree">
+      ${chip('T',16)}
+      <div class="stepl"><svg width="14" height="26" viewBox="0 0 14 26"><path d="M5 1V20M9 1V20M2 17L7 25L12 17" fill="none" stroke="#555" stroke-width="1.2"/></svg>FGA: alkene</div>
+      ${chip('A1',16)}
+      <div class="stepl"><svg width="14" height="26" viewBox="0 0 14 26"><path d="M5 1V20M9 1V20M2 17L7 25L12 17" fill="none" stroke="#555" stroke-width="1.2"/></svg>Wittig</div>
+      <div style="display:flex;align-items:center;gap:8px">${chip('K1',16,'cur')}<span class="plus" style="font-size:18px">+</span>${chip('EtBr',16,'sm')}</div>
+    </div>
+    <div class="sec" style="margin-top:12px"><span class="lbl">Intermediates (to do)</span><div class="row">${chip('K1',14)}</div></div>
+    <div class="sec"><span class="lbl">Starting materials</span><div class="row">${chip('EtBr',14,'sm')}</div></div>
+  </div></div>`;
+
+const reagentSheet = `<div class="scrim"></div><div class="sheet" style="height:600px">
+  <div class="grab"></div><div class="sh-h"><b>Reagents &amp; conditions</b><span>✕</span></div>
+  <div class="sh-b">
+    <div class="ctx">This step: ${chip('K1',11)} + ${chip('EtBr',11)} → <span class="preview" style="padding:1px 3px">${mol('A1',11)}</span></div>
+    <div class="search">Search reagents</div>
+    <div class="grp">Conditions</div><div class="it">Heat (Δ)</div><div class="it">Dean–Stark trap (removes water)</div>
+    <div class="grp">Reducing agents</div><div class="it">H₂, Pd/C</div><div class="it">NaBH₄</div>
+    <div class="grp">Phosphorus reagents</div><div class="it sel">PPh₃, then n-BuLi</div>
+    <div class="grp">Oxidizing agents</div><div class="it">PCC</div>
+  </div></div>`;
+
+const screens = [
+{ title:'1 · Retrosynthesis: apply a disconnection',
+  html: phone({progHTML:prog(1,'Retrosynthesis',15), planHTML:retroPlan0,
+    ws:`<span class="lbl">Target molecule</span>${mol('T',34,[1])}${downRetro('FGA: alkene')}<span class="preview">${mol('A1',30)}</span>`,
+    bottom:`${picker('Disconnection','FGA: R–R → R=R')}<div class="row2"><span class="btn">Clear</span><span class="btn pri">Apply</span></div>`}),
+  notes:['<b>Sidebar becomes a picker:</b> the disconnection list opens as a bottom sheet from the picker above the buttons.',
+         '<b>Tap instead of hover:</b> phones have no hover, so the student taps a bond to select it (gray highlight).',
+         '<b>Plan collapses:</b> the overview shrinks to one strip with counts; "Expand" opens the full plan.']},
+{ title:'2 · Disconnection list (bottom sheet)',
+  html: phone({progHTML:prog(1,'Retrosynthesis',15), planHTML:retroPlan0,
+    ws:`<span class="lbl">Target molecule</span>${mol('T',34,[1])}`, overlay:discSheet}),
+  notes:['<b>Filter as a toggle:</b> "only show ones that fit" filters by the tapped bond rather than a hovered one.',
+         '<b>44px rows:</b> each item is a full-width touch target; the list scrolls inside the sheet.']},
+{ title:'3 · Retrosynthesis: choose polarity',
+  html: phone({progHTML:prog(1,'Retrosynthesis',35), planHTML:retroPlan1,
+    ws:`<span class="lbl">Intermediate</span>${mol('A1',28,[1])}${downRetro('Wittig')}
+      <div class="opt sel"><span class="t"><span class="radio"></span>Option A</span>${pair(chip('EtBr',18,'sm'),mol('K1',18))}</div>
+      <div class="opt"><span class="t"><span class="radio"></span>Option B</span>${pair(chip('Ald',18,'sm'),mol('BrF',18))}</div>`,
+    bottom:`<div class="row2"><span class="btn">Back</span><span class="btn pri">Use option A</span></div>`}),
+  notes:['<b>Options stack:</b> the two polarity choices become full-width radio cards instead of sitting side by side.',
+         '<b>Shaded = starting material,</b> same as on laptop.']},
+{ title:'4 · Full plan (bottom sheet)',
+  html: phone({progHTML:prog(1,'Retrosynthesis',55), planHTML:retroPlan2,
+    ws:`<span class="lbl">Intermediate</span>${mol('K1',34,[3])}`, overlay:planSheet}),
+  notes:['<b>Plan reads top to bottom:</b> the mini-map turns into a vertical tree, which suits a tall screen better than a long horizontal row.',
+         '<b>Tap to revisit:</b> tapping a molecule reloads that step (dashed outline = current step).',
+         '<b>Intermediates and starting materials</b> live in this sheet instead of taking permanent space.']},
+{ title:'5 · Retrosynthesis complete',
+  html: phone({progHTML:prog(1,'Retrosynthesis',100), planHTML:planBox('Synthesis plan', fullPlan(), doneCounts),
+    ws:`${mol('E1',28,[3])}${downRetro('Aldol')}${pair(chip('Ac',22,'sm'),chip('Ald',22,'sm'))}
+      <div class="banner"><b>Retrosynthesis complete. Good job!</b>Next, match each step with the reagents or conditions that carry it out.</div>`,
+    bottom:`<span class="btn pri">Start forward synthesis →</span>`}),
+  notes:['<b>Long strips fade out</b> at the right edge to show they scroll sideways.']},
+{ title:'6 · Forward synthesis: step with a note',
+  html: phone({progHTML:prog(2,'Forward synthesis',20), planHTML:planBox('Forward synthesis', fwdStrip(0), ''),
+    ws:`<span class="lbl">Current step</span>${pair(mol('Ac',24),mol('Ald',24))}${downFwd('Δ')}${mol('E1',28)}
+      <div class="callout"><b>Note:</b> this reaction can give the addition or the elimination product. To favor elimination, use heat (Δ).</div>`,
+    bottom:`<span class="btn pri">Next step →</span>`}),
+  notes:['<b>Notes go below the product</b> instead of beside it.']},
+{ title:'7 · Forward synthesis: reagent list (bottom sheet)',
+  html: phone({progHTML:prog(2,'Forward synthesis',55), planHTML:planBox('Forward synthesis', fwdStrip(2), ''),
+    ws:`<span class="lbl">Current step</span>${pair(mol('K1',26),mol('EtBr',24))}`, overlay:reagentSheet}),
+  notes:['<b>Search first:</b> the full MOC reagent list is long, so the sheet opens with search at the top.',
+         '<b>Step context:</b> a one-line summary of the current step stays visible while the sheet covers the workspace.']},
+{ title:'8 · Forward synthesis: wrong reagent',
+  html: phone({progHTML:prog(2,'Forward synthesis',55), planHTML:planBox('Forward synthesis', fwdStrip(2), ''),
+    ws:`<span class="lbl">Current step</span>${pair(mol('K1',26),mol('EtBr',24))}${downFwd('H₂, Pd/C','<span class="verdict"><span class="mark x">✕</span>Try again</span>')}<span class="preview">${mol('A1',28)}</span>`,
+    bottom:`${picker('Reagent','H₂, Pd/C')}<span class="btn pri dis">Next step →</span>`}),
+  notes:['<b>Feedback sits on the arrow,</b> right next to the reagent that was wrong, so it reads at a glance on a small screen.',
+         '<b>Product is always shown:</b> the intended product (the molecule before the Wittig step in the plan) stays visible, dashed until the correct reagent is picked.']},
+{ title:'9 · Synthesis complete',
+  html: phone({progHTML:prog(2,'Forward synthesis',100), planHTML:planBox('Forward synthesis', fwdStrip(4), ''),
+    ws:`${mol('A1',28)}${downFwd('H₂, Pd/C','<span class="verdict"><span class="mark">✓</span>Correct</span>')}<span class="chip tgt" style="padding:8px">${mol('T',28)}</span>
+      <div class="complete">Synthesis complete!</div>`,
+    bottom:`<span class="btn pri">New synthesis</span><span class="btn">Restart this synthesis</span>`}),
+  notes:['<b>Buttons stack full width</b> at the bottom, within thumb reach.']},
+];
+
+// ---------- render + scale to fit ----------
+const root = document.getElementById('phone-boards');
+screens.forEach(s=>{
+  const b = document.createElement('section'); b.className='board';
+  b.innerHTML = `<h2>${s.title} · Phone 375</h2><div class="scaler"><div class="frame">${s.html}</div></div><ul class="notes">${s.notes.map(n=>`<li>${n}</li>`).join('')}</ul>`;
+  root.appendChild(b);
+});
+function fit(){
+  document.querySelectorAll('#phone-boards .scaler').forEach(sc=>{
+    const f = sc.firstElementChild, k = Math.min(1, sc.clientWidth/375);
+    f.style.transform = `scale(${k})`; sc.style.height = (f.offsetHeight*k)+'px';
+  });
+}
+addEventListener('resize', fit); fit();
+
+})();
+</script>
