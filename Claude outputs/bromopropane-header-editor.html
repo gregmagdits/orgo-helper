@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bromopropane header editor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Source+Code+Pro:wght@400&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+  :root { --navy:#12203a; --surface:#f5f7fa; --mist:#aebdd0; --ink:#45526a; --brand:#1d4e89; --line:#d4dbe5; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--surface); color:var(--navy); font-family:"Source Sans 3", system-ui, sans-serif; font-size:14px; }
+  header.app { padding:16px 24px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; }
+  header.app h1 { margin:0; font-size:22px; }
+  header.app p { margin:0; color:var(--ink); }
+  .stage-wrap { padding:8px 24px 0; }
+  .stage { position:relative; width:100%; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#e9edf3; }
+  #stage { display:block; width:100%; height:auto; touch-action:none; user-select:none; }
+  .bar { display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding:10px 24px; color:var(--ink); }
+  .bar label { display:inline-flex; gap:6px; align-items:center; }
+  main { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; padding:8px 24px 32px; }
+  section { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  section h2 { margin:0 0 10px; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); }
+  .row { display:grid; grid-template-columns: 92px 1fr 64px; gap:8px; align-items:center; margin:6px 0; }
+  .row input[type=range] { width:100%; }
+  .row input[type=number] { width:64px; font:inherit; padding:2px 4px; }
+  .colors { display:grid; grid-template-columns: 1fr 1fr; gap:8px 16px; }
+  .colors label { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  input[type=color] { width:44px; height:28px; border:1px solid var(--line); border-radius:4px; padding:0; background:none; }
+  .atoms { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .atoms button { font:inherit; border:1px solid var(--line); background:#fff; border-radius:999px; padding:2px 10px; cursor:pointer; }
+  .atoms button[aria-pressed=true] { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .btns button { font:inherit; font-weight:600; border:1px solid #7d8da6; background:#fff; border-radius:6px; padding:6px 12px; cursor:pointer; }
+  .btns button.primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+  textarea { width:100%; height:180px; font:12px/1.4 "Source Code Pro", monospace; border:1px solid var(--line); border-radius:6px; padding:8px; }
+  .hint { color:var(--ink); margin:6px 0 0; }
+  kbd { font:12px "Source Code Pro", monospace; border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 4px; background:#fff; }
+  .atom { cursor:grab; }
+  .atom.sel { stroke:#ffd34d !important; stroke-width:2.5 !important; }
+  .handle { cursor:move; }
+</style>
+</head>
+<body>
+<header class="app">
+  <h1>Bromopropane header editor</h1>
+  <p>Drag an atom to move it (its bonds follow). Drag the dashed box, or hold <kbd>Shift</kbd> while dragging an atom, to move the whole molecule.</p>
+</header>
+
+<div class="stage-wrap"><div class="stage">
+<svg id="stage" viewBox="0 -40 1440 152" aria-label="Laptop header, 1440 wide">
+  <defs><clipPath id="hdrClip"><rect x="0" y="0" width="1440" height="72"/></clipPath></defs>
+  <rect x="0" y="0" width="1440" height="72" fill="#12203a"/>
+  <!-- wordmark (122px wide, 116-unit mark) -->
+  <g transform="translate(112 4.5) scale(1.0517)">
+    <path d="M14 16 26.67 41.5" stroke="#aebdd0" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="14" cy="16" r="14" fill="#dc1818"/>
+    <text x="14" y="21.5" text-anchor="middle" font-family="Source Sans 3" font-weight="700" font-size="15" fill="#fff">O</text>
+    <text x="31" y="23.67" font-family="Kalam" font-weight="700" font-size="26" fill="#f5f7fa">rgo</text>
+    <circle cx="26.67" cy="41.5" r="9" fill="#f5f7fa"/>
+    <text x="26.67" y="45" text-anchor="middle" font-family="Source Sans 3" font-weight="700" font-size="10" fill="#12203a">H</text>
+    <text x="38.67" y="50.5" font-family="Kalam" font-weight="700" font-size="26" fill="#f5f7fa">elper</text>
+  </g>
+  <!-- nav -->
+  <g font-family="Source Sans 3" font-weight="600" font-size="15">
+    <text x="1012" y="41" fill="#fff">Practice Problems ▾</text>
+    <rect x="1012" y="69" width="146" height="3" fill="#fff"/>
+    <text x="1188" y="41" fill="#aebdd0">Lectures</text>
+    <text x="1272" y="41" fill="#aebdd0">Account</text>
+  </g>
+  <!-- ghost of the parts the header crops -->
+  <g id="ghost" opacity="0.35"></g>
+  <!-- the molecule as the header shows it -->
+  <g clip-path="url(#hdrClip)"><g id="mol"></g></g>
+  <!-- handles (not clipped) -->
+  <g id="handles"></g>
+</svg>
+</div></div>
+
+<div class="bar">
+  <label>View <select id="zoom"><option value="90 -36 620 144" selected>Zoomed on the logo</option><option value="0 -40 1440 152">Whole header</option></select></label>
+  <label><input type="checkbox" id="showGhost" checked> Show cropped parts faintly</label>
+  <label><input type="checkbox" id="showBox" checked> Show molecule box</label>
+  <span>The header is 1440 × 72; the grey band above and below is outside the header.</span>
+</div>
+
+<main>
+  <section>
+    <h2>Whole molecule</h2>
+    <div class="row"><span>Left (px)</span><input type="range" id="mx" min="200" max="900" step="1"><input type="number" id="mxN" step="1"></div>
+    <div class="row"><span>Top (px)</span><input type="range" id="my" min="-60" max="100" step="1"><input type="number" id="myN" step="1"></div>
+    <div class="row"><span>Scale</span><input type="range" id="ms" min="0.2" max="2" step="0.01"><input type="number" id="msN" step="0.01"></div>
+    <div class="row"><span>Rotate (°)</span><input type="range" id="mr" min="-180" max="180" step="1"><input type="number" id="mrN" step="1"></div>
+    <div class="row"><span>Opacity</span><input type="range" id="mo" min="0.05" max="1" step="0.01"><input type="number" id="moN" step="0.01"></div>
+    <p class="hint">Scale 0.58 is the current header size (38px for the original 66-unit methylamine width). Left/top are the molecule's 0,0 point in header pixels.</p>
+  </section>
+
+  <section>
+    <h2>Atoms</h2>
+    <div class="atoms" id="atomBtns"></div>
+    <div class="row"><span>X (units)</span><input type="range" id="ax" min="-60" max="200" step="0.5"><input type="number" id="axN" step="0.5"></div>
+    <div class="row"><span>Y (units)</span><input type="range" id="ay" min="-80" max="140" step="0.5"><input type="number" id="ayN" step="0.5"></div>
+    <div class="row"><span>Radius</span><input type="range" id="ar" min="3" max="25" step="0.5"><input type="number" id="arN" step="0.5"></div>
+    <p class="hint">Arrow keys nudge the selected atom by 1 unit (<kbd>Alt</kbd> for 0.25). With <kbd>Shift</kbd> they move the whole molecule by 1px.</p>
+    <div class="row"><span>Bond width</span><input type="range" id="bw" min="1" max="8" step="0.1"><input type="number" id="bwN" step="0.1"></div>
+  </section>
+
+  <section>
+    <h2>Colours</h2>
+    <div class="colors">
+      <label>Carbon <input type="color" id="cC"></label>
+      <label>Bromine <input type="color" id="cBr"></label>
+      <label>Hydrogen <input type="color" id="cH"></label>
+      <label>Bonds <input type="color" id="cBond"></label>
+      <label>Carbon outline <input type="color" id="cOut"></label>
+    </div>
+    <div class="btns">
+      <button type="button" id="resetAtoms">Reset atoms</button>
+      <button type="button" id="resetAll">Reset everything</button>
+    </div>
+  </section>
+
+  <section style="grid-column: 1 / -1;">
+    <h2>Result</h2>
+    <p class="hint" style="margin:0 0 8px">Copy this and paste it back to me in chat; it holds the position, size, rotation, opacity, colours and every atom's coordinates, plus the SVG it draws. To pick up where you left off, select everything in the box, paste saved settings over it and they load straight away (or press Load settings).</p>
+    <textarea id="out" spellcheck="false"></textarea>
+    <div class="btns"><button type="button" class="primary" id="copy">Copy</button><button type="button" id="load">Load settings</button><span id="copied" class="hint"></span></div>
+  </section>
+</main>
+
+<script>
+const DEFAULT = {
+  x: 260, y: 12, scale: 0.582, rotate: 0, opacity: 0.55, bondWidth: 3.5,
+  colors: { C:"#000000", Br:"#7f5b52", H:"#f5f7fa", bond:"#aebdd0", outline:"#aebdd0" },
+  atoms: [
+    { id:"Br",  el:"Br", x:26,  y:58,   r:15 },
+    { id:"C1",  el:"C",  x:36,  y:24,   r:13 },
+    { id:"C2",  el:"C",  x:65,  y:6.5,  r:13 },
+    { id:"C3",  el:"C",  x:98,  y:16,   r:13 },
+    { id:"H1a", el:"H",  x:22,  y:6,    r:8 },
+    { id:"H1b", el:"H",  x:58,  y:36,   r:8 },
+    { id:"H2a", el:"H",  x:60,  y:-16,  r:8 },
+    { id:"H2b", el:"H",  x:76,  y:30,   r:8 },
+    { id:"H3a", el:"H",  x:120, y:8,    r:8 },
+    { id:"H3b", el:"H",  x:110, y:37,   r:8 },
+    { id:"H3c", el:"H",  x:104, y:-6,   r:8 }
+  ],
+  bonds: [["C1","Br"],["C1","H1a"],["C1","H1b"],["C1","C2"],["C2","H2a"],["C2","H2b"],["C2","C3"],["C3","H3a"],["C3","H3b"],["C3","H3c"]]
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+let S = clone(DEFAULT);
+let sel = "Br";
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const stage = $("stage"), mol = $("mol"), ghost = $("ghost"), handles = $("handles");
+const atom = id => S.atoms.find(a => a.id === id);
+// draw order: H behind, then C, then Br on top
+const order = () => [...S.atoms].sort((a,b) => ({H:0,C:1,Br:2}[a.el] - {H:0,C:1,Br:2}[b.el]));
+const fmt = n => Math.round(n * 100) / 100;
+
+function moleculeMarkup(forExport) {
+  let s = `<g stroke="${S.colors.bond}" stroke-width="${S.bondWidth}" stroke-linecap="round">`;
+  for (const [a,b] of S.bonds) { const A = atom(a), B = atom(b); s += `<path d="M${fmt(A.x)} ${fmt(A.y)} ${fmt(B.x)} ${fmt(B.y)}"/>`; }
+  s += `</g>`;
+  for (const a of order()) {
+    const fill = S.colors[a.el];
+    const extra = a.el === "C" ? ` stroke="${S.colors.outline}" stroke-width="1.2"` : "";
+    const cls = forExport ? "" : ` class="atom${a.id === sel ? " sel" : ""}" data-id="${a.id}"`;
+    s += `<circle${cls} cx="${fmt(a.x)}" cy="${fmt(a.y)}" r="${fmt(a.r)}" fill="${fill}"${extra}/>`;
+  }
+  return s;
+}
+function bbox() {
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for (const a of S.atoms) { x0=Math.min(x0,a.x-a.r); y0=Math.min(y0,a.y-a.r); x1=Math.max(x1,a.x+a.r); y1=Math.max(y1,a.y+a.r); }
+  return {x0,y0,x1,y1};
+}
+const tf = () => `translate(${S.x} ${S.y}) rotate(${S.rotate}) scale(${S.scale})`;
+
+function render() {
+  const inner = moleculeMarkup(false);
+  mol.setAttribute("transform", tf()); mol.setAttribute("opacity", S.opacity); mol.innerHTML = inner;
+  ghost.style.display = $("showGhost").checked ? "" : "none";
+  ghost.setAttribute("transform", tf()); ghost.innerHTML = moleculeMarkup(true);
+  // handles: dashed box + transparent hit targets for every atom so cropped atoms stay draggable
+  const b = bbox(), pad = 4;
+  let h = `<g transform="${tf()}">`;
+  if ($("showBox").checked) h += `<rect class="handle" x="${b.x0-pad}" y="${b.y0-pad}" width="${b.x1-b.x0+2*pad}" height="${b.y1-b.y0+2*pad}" fill="rgba(255,255,255,0.001)" stroke="#ffd34d" stroke-dasharray="4 3" stroke-width="${1/S.scale}" vector-effect="non-scaling-stroke"/>`;
+  for (const a of order()) h += `<circle class="atom${a.id===sel?" sel":""}" data-id="${a.id}" cx="${a.x}" cy="${a.y}" r="${a.r}" fill="transparent" stroke="${a.id===sel?"#ffd34d":"none"}" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;
+  h += `</g>`;
+  handles.innerHTML = h;
+  syncInputs(); writeOut();
+}
+
+function syncInputs() {
+  const pairs = [["mx",S.x],["my",S.y],["ms",S.scale],["mr",S.rotate],["mo",S.opacity],["bw",S.bondWidth]];
+  const a = atom(sel); pairs.push(["ax",a.x],["ay",a.y],["ar",a.r]);
+  for (const [id,v] of pairs) { if (document.activeElement !== $(id)) $(id).value = v; if (document.activeElement !== $(id+"N")) $(id+"N").value = fmt(v); }
+  $("cC").value = S.colors.C; $("cBr").value = S.colors.Br; $("cH").value = S.colors.H; $("cBond").value = S.colors.bond; $("cOut").value = S.colors.outline;
+  for (const btn of $("atomBtns").children) btn.setAttribute("aria-pressed", btn.dataset.id === sel);
+}
+
+function writeOut() {
+  const b = bbox();
+  const vb = [Math.floor(b.x0), Math.floor(b.y0), Math.ceil(b.x1 - Math.floor(b.x0)), Math.ceil(b.y1 - Math.floor(b.y0))];
+  const settings = {
+    headerPosition: { left: fmt(S.x), top: fmt(S.y), note: "px from the header's top-left corner (1440 × 72 header) to the molecule's 0,0 point" },
+    scale: fmt(S.scale), rotate: S.rotate, opacity: fmt(S.opacity), bondWidth: fmt(S.bondWidth),
+    colors: S.colors,
+    atoms: Object.fromEntries(S.atoms.map(a => [a.id, { el:a.el, x:fmt(a.x), y:fmt(a.y), r:fmt(a.r) }]))
+  };
+  const svg = `<svg viewBox="${vb.join(" ")}" aria-hidden="true">${moleculeMarkup(true)}</svg>`;
+  $("out").value = "Bromopropane header settings\n" + JSON.stringify(settings, null, 2) + "\n\nSVG:\n" + svg;
+}
+
+// atom buttons
+for (const a of S.atoms) {
+  const b = document.createElement("button"); b.type = "button"; b.textContent = a.id; b.dataset.id = a.id;
+  b.addEventListener("click", () => { sel = a.id; render(); });
+  $("atomBtns").appendChild(b);
+}
+
+// pointer → molecule coordinates
+function toMol(evt) {
+  const p = stage.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(mol.getScreenCTM().inverse());
+}
+function toStage(evt) {
+  const p = stage.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(stage.getScreenCTM().inverse());
+}
+let drag = null;
+stage.addEventListener("pointerdown", e => {
+  const t = e.target;
+  if (t.classList.contains("atom") && !e.shiftKey) {
+    sel = t.dataset.id; const a = atom(sel), m = toMol(e);
+    drag = { kind:"atom", dx: a.x - m.x, dy: a.y - m.y };
+  } else if (t.classList.contains("atom") || t.classList.contains("handle")) {
+    if (t.dataset.id) sel = t.dataset.id;
+    const p = toStage(e); drag = { kind:"mol", dx: S.x - p.x, dy: S.y - p.y };
+  } else return;
+  stage.setPointerCapture(e.pointerId); e.preventDefault(); render();
+});
+stage.addEventListener("pointermove", e => {
+  if (!drag) return;
+  if (drag.kind === "atom") { const m = toMol(e), a = atom(sel); a.x = Math.round((m.x + drag.dx) * 4) / 4; a.y = Math.round((m.y + drag.dy) * 4) / 4; }
+  else { const p = toStage(e); S.x = Math.round(p.x + drag.dx); S.y = Math.round(p.y + drag.dy); }
+  render();
+});
+const end = () => { drag = null; };
+stage.addEventListener("pointerup", end); stage.addEventListener("pointercancel", end);
+
+// keyboard nudges
+document.addEventListener("keydown", e => {
+  if (["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  const d = { ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1] }[e.key];
+  if (!d) return; e.preventDefault();
+  if (e.shiftKey) { S.x += d[0]; S.y += d[1]; }
+  else { const k = e.altKey ? 0.25 : 1, a = atom(sel); a.x += d[0]*k; a.y += d[1]*k; }
+  render();
+});
+
+// inputs
+function bind(id, get, set) {
+  const f = v => { const n = parseFloat(v); if (!isNaN(n)) { set(n); render(); } };
+  $(id).addEventListener("input", e => f(e.target.value));
+  $(id+"N").addEventListener("input", e => f(e.target.value));
+}
+bind("mx", () => S.x, v => S.x = v);
+bind("my", () => S.y, v => S.y = v);
+bind("ms", () => S.scale, v => S.scale = v);
+bind("mr", () => S.rotate, v => S.rotate = v);
+bind("mo", () => S.opacity, v => S.opacity = v);
+bind("bw", () => S.bondWidth, v => S.bondWidth = v);
+bind("ax", () => atom(sel).x, v => atom(sel).x = v);
+bind("ay", () => atom(sel).y, v => atom(sel).y = v);
+bind("ar", () => atom(sel).r, v => atom(sel).r = v);
+for (const [id,key] of [["cC","C"],["cBr","Br"],["cH","H"],["cBond","bond"],["cOut","outline"]])
+  $(id).addEventListener("input", e => { S.colors[key] = e.target.value; render(); });
+$("showGhost").addEventListener("change", render);
+$("showBox").addEventListener("change", render);
+$("zoom").addEventListener("change", e => stage.setAttribute("viewBox", e.target.value));
+stage.setAttribute("viewBox", $("zoom").value);
+$("resetAtoms").addEventListener("click", () => { S.atoms = clone(DEFAULT.atoms); render(); });
+$("resetAll").addEventListener("click", () => { S = clone(DEFAULT); sel = "Br"; render(); });
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("out").value); $("copied").textContent = "Copied"; }
+  catch { $("out").select(); document.execCommand("copy"); $("copied").textContent = "Copied"; }
+  setTimeout(() => $("copied").textContent = "", 1500);
+});
+
+// Load settings pasted into the result box (the JSON part; anything before or after it, like the SVG, is ignored)
+let editing = false;
+function status(msg) { $("copied").textContent = msg; setTimeout(() => $("copied").textContent = "", 3000); }
+function loadSettings(text) {
+  const start = text.indexOf("{");
+  if (start < 0) { status("No settings found: paste the text that starts with { "); return false; }
+  // find the matching closing brace of the first JSON object
+  let depth = 0, end = -1, inStr = false, esc = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
+    if (ch === '"') inStr = true; else if (ch === "{") depth++; else if (ch === "}") { depth--; if (depth === 0) { end = i; break; } }
+  }
+  let cfg;
+  try { cfg = JSON.parse(text.slice(start, end + 1)); } catch (err) { status("Couldn't read those settings: " + err.message); return false; }
+  const num = (v, d) => (typeof v === "number" && isFinite(v)) ? v : d;
+  const next = clone(S);
+  const hp = cfg.headerPosition || {};
+  next.x = num(hp.left ?? cfg.x, next.x);
+  next.y = num(hp.top ?? cfg.y, next.y);
+  next.scale = num(cfg.scale, next.scale);
+  next.rotate = num(cfg.rotate, next.rotate);
+  next.opacity = num(cfg.opacity, next.opacity);
+  next.bondWidth = num(cfg.bondWidth, next.bondWidth);
+  const hex = v => typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v);
+  if (cfg.colors) for (const k of ["C","Br","H","bond","outline"]) if (hex(cfg.colors[k])) next.colors[k] = cfg.colors[k].toLowerCase();
+  let skipped = [];
+  if (cfg.atoms) for (const [id, a] of Object.entries(cfg.atoms)) {
+    const t = next.atoms.find(x => x.id === id);
+    if (!t) { skipped.push(id); continue; }
+    t.x = num(a.x, t.x); t.y = num(a.y, t.y); t.r = num(a.r, t.r);
+  }
+  S = next;
+  editing = false;
+  render();
+  status(skipped.length ? "Loaded (ignored unknown atoms: " + skipped.join(", ") + ")" : "Settings loaded");
+  return true;
+}
+$("load").addEventListener("click", () => loadSettings($("out").value));
+$("out").addEventListener("paste", e => {
+  const text = (e.clipboardData || window.clipboardData).getData("text");
+  if (text && text.includes("{")) { e.preventDefault(); loadSettings(text); }
+});
+// while typing in the box, don't overwrite it with the live result
+$("out").addEventListener("input", () => { editing = true; });
+const _writeOut = writeOut;
+writeOut = function () { if (!editing) _writeOut(); };
+// any other change (dragging, sliders, keys) resumes the live result
+stage.addEventListener("pointerdown", () => { editing = false; }, true);
+document.addEventListener("input", e => { if (e.target !== $("out")) editing = false; }, true);
+document.addEventListener("keydown", e => { if (e.target !== $("out")) editing = false; }, true);
+render();
+if (document.fonts) document.fonts.ready.then(render);
+</script>
+</body>
+</html>
