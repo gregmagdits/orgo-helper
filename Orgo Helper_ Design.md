@@ -47,7 +47,7 @@ Page backgrounds between the header and footer carry a faint wallpaper of skelet
 - Lines are the heading color `#1D3557` at 7.5% strength, 2px, on a 960 × 960 px tile that repeats without seams.
 - The same tile is used on every page; it is never regenerated per page or on refresh.
 - Cards and panels sit on white above it, so body text never sits directly on the wallpaper.
-- Files: `docs/style-samples/images/molecule-wallpaper.svg` and `molecule-wallpaper-layout.json` (each molecule's type, position and angle, for rebuilding or tweaking).
+- Files: `molecule-wallpaper.svg` and `molecule-wallpaper-layout.json` (each molecule's type, position and angle, for rebuilding or tweaking) were in `docs/style-samples/images/` until that folder was removed in November 2026; they're still in git history.
 
 ## Home page
 

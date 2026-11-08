@@ -20,8 +20,11 @@ Domains: orgohelper.com is production and orgohelper.dev is development.
 - `Orgo Helper_ Design.md`: brand and design (wordmark, fonts, palette). The vision doc calls this file `design.md`, but this is the actual filename.
 - `IUPAC Naming Generator_ Project Vision.md`: the vision for the first generator. It's kept here for reference on the website–generator boundary but belongs to a separate project.
 - `docs/lo-fi_wireframes/`: low-fidelity wireframes for every site page (home, Practice Problems menu, sign-in, generator page, coming soon, lectures, account, unavailable on a phone, about/privacy/terms, delete account, contact, not found) at phone 375, tablet 820 and laptop 1440 widths.
-- `docs/style-samples/`: early hi-fi mockups (`index.html`, `practice.html`, a shared `styles.css`, and `menu.js` for the Practice Problems dropdown). `styles.css` defines the palette as CSS custom properties on `:root`.
-- `docs/style-samples/prompts/claude-design-system-instructions.md`: the user's brief for turning the mockups into a design system. Prefer simplifications, capture colors and typography first, keep the other elements minimal, and keep molecule-editor and molecule styling to a minimum because it will be reworked.
+- `docs/hi-fi_mockups/`: hi-fi mockups (HTML and PDF) for the site, settings, the IUPAC generator and the Synthesis generator.
+- `docs/design-system/`: the design system document (PDF).
+- `docs/prototype/`: a clickable prototype built from the hi-fi mockups.
+- `docs/user-flows/`: the site user flows (DOCX and PDF).
+- `docs/videos/`: intro video sequence files. Excluded from git through `.git/info/exclude` but synced to S3.
 
 The vision and design docs are living documents. Update them when a decision changes instead of letting them drift.
 
